@@ -10,10 +10,6 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from mpl_toolkits.basemap import Basemap
 
-#plt_barbs = True  # true: 矢羽を描く
-#barbs_kt = False  # true: kt, false: m/s
-#barbs_kt = True # true: kt, false: m/s
-
 #area = "Japan"
 area = "Tokyo"
 
@@ -188,8 +184,8 @@ def draw(lons, lats, d, u, v, output_filename="test.png", title=None):
     #
     # 図法の座標へ変換
     x, y = m(lons, lats)
-    # temp2colクラスの初期化
-    t2c = temp2col(cmap='jet')
+    # temp2colクラスの初期化（気温の範囲はtmin、tmaxで設定、tstepで刻み幅）
+    t2c = temp2col(cmap='jet', tmin=4., tmax=24.)
     # マーカーをプロット
     for xc, yc, dc in zip(x, y, d):
         if math.isnan(dc):
@@ -238,9 +234,9 @@ def main(tinfo=None, tinfof=None):
 if __name__ == '__main__':
 
     # 開始・終了時刻
-    time_sta = datetime(2021, 4, 15, 22, 0, 0)
-    time_end = datetime(2021, 4, 15, 22, 0, 0)
-    time_step = timedelta(minutes=30)
+    time_sta = datetime(2021, 5, 2, 10, 0, 0)
+    time_end = datetime(2021, 5, 2, 14, 30, 0)
+    time_step = timedelta(minutes=10)
     time = time_sta
     while True:
         if time <= time_end:

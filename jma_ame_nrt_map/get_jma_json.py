@@ -8,7 +8,7 @@ import urllib.request
 
 # 取得する時刻（Noneとすれば、最新のものを取得）
 latest = None
-#latest = "2021-03-21T15:00:00+09:00"
+#latest = "2021-05-02T14:30:00+09:00"
 
 
 # データ取得部分
