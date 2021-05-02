@@ -7,6 +7,7 @@ https://www.jma.go.jp/bosai/windprofiler/const/station.json
 （get_wpr_json.pyを実行後に作成されるstation.jsonにも同じものが入る）
 
 % python3 get_wpr_json.py
+
 出力：
 u_地点番号.csv（東西風速）
 v_地点番号.csv（南北風速）
@@ -17,6 +18,7 @@ height.csv（データの高度一覧）
 time.csv（時刻一覧）
 
 （２）時間ー高度断面図作成
+
 map_wpr.pyを編集し、地点番号をsta_idに、地点名をsta_nameに設定する
 time.csvを確認し、map_wpr.pyを編集して切り出したい時刻番号をxmin、xmaxに設定する
 （全時刻を使う場合には、xmin=None、xmax=Noneでよい）
@@ -24,5 +26,6 @@ time.csvを確認し、map_wpr.pyを編集して切り出したい時刻番号�
 図に表示したいタイトルをtitleに設定する。
 
 % python3 map_wpr.py
+
 出力：
 wpr.地点名.png
