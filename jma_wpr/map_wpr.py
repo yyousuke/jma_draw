@@ -8,10 +8,12 @@ import matplotlib as mpl
 import copy
 
 # 地点
-#sta_id = "47406"
-#sta_name = "Rumoi"
-sta_id = "47656" # 静岡
-sta_name = "Shizuoka"
+#sta_id = "47626"
+#sta_name = "Kumagaya"
+sta_id = "47636" # 名古屋 
+sta_name = "Nagoya"
+#sta_id = "47656" # 静岡
+#sta_name = "Shizuoka"
 # 入力ファイル名
 input_file_u = "u_" + sta_id + ".csv"
 input_file_v = "v_" + sta_id + ".csv"
@@ -19,8 +21,14 @@ input_file_w = "w_" + sta_id + ".csv"
 # 出力ファイル名
 output_filename = "wpr." + sta_name + ".png"
 # タイトル
-title = "2021/03/28-29 " + sta_name
+title = "2021/5/1 " + sta_name
+#title = "2021/03/28-29 " + sta_name
 #
+# x軸の範囲
+xmin = 121
+xmax = 211
+#xmin = None
+#xmax = None
 # y軸の範囲
 ymin = 0
 ymax = 8000
@@ -29,6 +37,9 @@ ymax = 8000
 u = pd.read_csv(input_file_u, index_col=[0], parse_dates=[0])  # 東西風速
 v = pd.read_csv(input_file_v, index_col=[0], parse_dates=[0])  # 南北風速
 w = pd.read_csv(input_file_w, index_col=[0], parse_dates=[0])  # 鉛直速度
+u = u.iloc[xmin:xmax, :]
+v = v.iloc[xmin:xmax, :]
+w = w.iloc[xmin:xmax, :]
 # 時間ー高度面
 time = w.index
 height = np.array(w.columns, dtype=float) # 文字列として読み込まれたものを変換
@@ -54,15 +65,14 @@ print(u.shape)
 # プロットエリアの定義
 fig = plt.figure(figsize=(12, 5))
 ax = fig.add_subplot(1, 1, 1)
-# y軸の範囲
-ax.set_ylim([ymin, ymax])
 
 # 矢羽を描く
 ax.invert_xaxis() # 時間軸を右から左へ
 ax.barbs(X.flatten(), Y.flatten(), u.flatten(), v.flatten(),
-         sizes=dict(emptybarb=0.0), length=2.5,
+         sizes=dict(emptybarb=0.0), length=3.5,
          color='k', linewidth=0.8,
          zorder=2)
+         #sizes=dict(emptybarb=0.0), length=2.5,
 #plt.barbs(X.flatten()[::8], Y.flatten()[::8], u.flatten()[::8], v.flatten()[::8],
 #          sizes=dict(emptybarb=0.0, width=0.1), length=4, color='k')
 #plt.quiver(X.flatten(), Y.flatten(), u.flatten(), v.flatten())
@@ -94,13 +104,18 @@ else: # 陰影
 cbar = fig.colorbar(cs, orientation='vertical')
 cbar.set_label("Vertical velocity (m/s)", fontsize=12)
 
+# y軸の範囲
+ax.set_ylim([ymin, ymax])
+
 # x軸の目盛り
 #ax.xaxis.set_major_locator(ticker.AutoLocator())
 #ax.xaxis.set_minor_locator(ticker.AutoMinorLocator())
-ax.xaxis.set_major_locator(ticker.MultipleLocator(1 / 8))
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1 / 24))
+#ax.xaxis.set_major_locator(ticker.MultipleLocator(1 / 8))
 ax.xaxis.set_minor_locator(ticker.MultipleLocator(1 / 24))
 ax.set_xticklabels(ax.get_xticklabels(), rotation=70, size="small")
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d %Hh'))
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d %HZ'))
+#ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d %Hh'))
 ax.xaxis.set_minor_formatter(ticker.NullFormatter())
 
 # y軸の目盛り

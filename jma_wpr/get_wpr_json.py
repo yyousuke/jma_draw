@@ -36,12 +36,15 @@ class WprStation():
             u_o = np.ones(size) * np.nan
             v_o = np.ones(size) * np.nan
             w_o = np.ones(size) * np.nan
-            df = DataFrame(d[tinfo])
-            #df = DataFrame(d['20210321064000'])
-            u_i, v_i, w_i, z_i = self._divide(df)
-            u_o[0:u_i.shape[0]] = u_i
-            v_o[0:v_i.shape[0]] = v_i
-            w_o[0:w_i.shape[0]] = w_i
+            try:
+                df = DataFrame(d[tinfo])
+                u_i, v_i, w_i, z_i = self._divide(df)
+                #df = DataFrame(d['20210321064000'])
+                u_o[0:u_i.shape[0]] = u_i
+                v_o[0:v_i.shape[0]] = v_i
+                w_o[0:w_i.shape[0]] = w_i
+            except:
+                z_i = []
             print(tinfo, "zlevs =", len(z_i))
             if len(z_i) > zmax:
                 z[0:w_i.shape[0]] = z_i
@@ -105,8 +108,9 @@ if __name__ == '__main__':
     l = wpr_location()
     station_list = np.array(l.index).tolist()
     print(station_list, len(station_list))
-    #station_no = 47406 # 留萌
-    station_no = 47656 # 静岡
+    #station_no = 47626 # 熊谷
+    #station_no = 47656 # 静岡
+    station_no = 47636 # 名古屋
 
     # WprStation Classの初期化
     wpr = WprStation(station_no=station_no)
