@@ -20,9 +20,9 @@ class temp2col():
         self.tmax = tmax
         self.tstep = tstep
         self.cmap = cmap
+        self.cm = plt.get_cmap(self.cmap)
 
     def conv(self, temp):
-        self.cm = plt.get_cmap(self.cmap)
         n = (temp - self.tmin) / (self.tmax - self.tmin) * self.cm.N
         n = max(min(n, self.cm.N), 0)
         return self.cm(int(n))
