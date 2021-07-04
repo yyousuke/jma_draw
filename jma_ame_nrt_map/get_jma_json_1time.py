@@ -3,14 +3,12 @@ from pandas import Series, DataFrame
 import pandas as pd
 import numpy as np
 import os
-import time
 import json
 import urllib.request
-from datetime import datetime, timedelta
 
-# 取得する時刻（Trueとすれば、最新のものを取得）
-#opt_latest = True
-opt_latest = False
+# 取得する時刻（Noneとすれば、最新のものを取得）
+latest = None
+#latest = "2021-05-02T14:30:00+09:00"
 
 
 # データ取得部分
@@ -26,8 +24,6 @@ class AmedasStation():
     def retrieve(self):
         url_top = "https://www.jma.go.jp/bosai/amedas/data/map/"
         file_name = self.latest_time + ".json"
-        if os.path.exists(file_name):  # 既に取得している場合
-            return None
         # アメダスデータの取得
         url = url_top + file_name
         print(url)
@@ -67,29 +63,8 @@ class AmedasStation():
 
 if __name__ == '__main__':
 
-    if opt_latest:  # 最新のものを取得
-        # AmedasStation Classの初期化
-        amedas = AmedasStation()
-        # AmedasStation.retrieveメソッドを使い、アメダスデータを取得
-        df = amedas.retrieve()
-        print(df)
-    else:  # 指定した時刻範囲で取得(opt_latest = Falseの場合のみ有効)
-        # 開始・終了時刻
-        time_sta = datetime(2021, 6, 30, 0, 0, 0)
-        time_end = datetime(2021, 7, 4, 21, 0, 0)
-        time_step = timedelta(minutes=10)
-        time_now = time_sta
-        while True:
-            if time_now <= time_end:
-                latest = time_now.strftime("%Y-%m-%dT%H:%M:%S+09:00")
-                #latest = "2021-05-02T14:30:00+09:00"
-                print(latest)
-                # AmedasStation Classの初期化
-                amedas = AmedasStation(latest)
-                # AmedasStation.retrieveメソッドを使い、アメダスデータを取得
-                df = amedas.retrieve()
-                if df is not None:
-                    time.sleep(10.0)  # 10秒間待つ
-            else:
-                break
-            time_now = time_now + time_step
+    # AmedasStation Classの初期化
+    amedas = AmedasStation(latest)
+    # AmedasStation.retrieveメソッドを使い、アメダスデータを取得
+    df = amedas.retrieve()
+    print(df)
