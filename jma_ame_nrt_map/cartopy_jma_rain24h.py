@@ -243,6 +243,7 @@ def draw(lons,
          output_filename="test.png",
          opt_mapcolor=False,
          opt_pref=False,
+         opt_markerlabel=False,
          opt_barbs=False,
          title=None,
          area=None):
@@ -350,8 +351,9 @@ def draw(lons,
         else:
             c = t2c.conv(dc)
             ax.plot(xc, yc, marker='o', color=c, markersize=ms)
-            if xc >= lon_min and xc <= lon_max and yc >= lat_min and yc <= lat_max:
-                ax.text(xc + 0.03, yc - 0.02, str(dc), color=c, fontsize=8)
+            if opt_markerlabel:
+                if xc >= lon_min and xc <= lon_max and yc >= lat_min and yc <= lat_max:
+                    ax.text(xc + 0.03, yc - 0.02, str(dc), color=c, fontsize=8)
 
     # 矢羽を描く
     if opt_barbs:
@@ -401,6 +403,7 @@ def main(tinfo=None, tinfof=None, area="Japan", output_dir='.'):
              title=tinfo,
              area=area,
              opt_pref=True,
+             opt_markerlabel=True,
              opt_mapcolor=True)
 
 
