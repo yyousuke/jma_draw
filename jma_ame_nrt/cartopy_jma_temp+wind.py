@@ -5,18 +5,27 @@ import numpy as np
 import math
 import json
 import os
-#import urllib.request
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+from jmaloc import MapRegion
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
+import cartopy.io.shapereader as shapereader
+import itertools
+from utils import common
 
 # 出力ディレクトリ名
 output_dir = "./map"
 
+# 地域の選択
 #area = "Japan"
-area = "Tokyo"
+area = "Tokyo_b"
+#area = "Tokyo"
+
+# 矢羽を描くかどうか
+opt_barbs = False
+#opt_barbs = True
 
 
 # dir_name: 作成するディレクトリ名
@@ -126,6 +135,34 @@ def read_data(input_filename):
         out_u), np.array(out_v)
 
 
+# ax: cartopyを呼び出した際のaxes
+def add_pref(ax,
+             linestyle='-',
+             facecolor='none',
+             edgecolor='k',
+             linewidth=0.8):
+    # 10mの解像度のデータ
+    shpfilename = shapereader.natural_earth(resolution='10m',
+                                            category='cultural',
+                                            name='admin_1_states_provinces')
+    #
+    # 都道府県のみ取得
+    provinces = shapereader.Reader(shpfilename).records()
+    provinces_of_japan = filter(
+        lambda province: province.attributes['admin'] == 'Japan', provinces)
+    #
+    # 都道府県境の追加
+    for province in provinces_of_japan:
+        #print(province.attributes['name'])
+        geometry = province.geometry
+        ax.add_geometries([geometry],
+                          ccrs.PlateCarree(),
+                          facecolor=facecolor,
+                          edgecolor=edgecolor,
+                          linewidth=linewidth,
+                          linestyle=linestyle)
+
+
 def draw(lons,
          lats,
          d,
@@ -133,44 +170,35 @@ def draw(lons,
          v,
          output_filename="test.png",
          opt_mapcolor=False,
+         opt_pref=False,
+         opt_barbs=False,
          title=None,
          area=None):
 
     # プロット領域の作成
     fig = plt.figure(figsize=(18, 12))
     #fig = plt.figure(figsize=(9, 6))
+    #
+    # MapRegion Classの初期化
+    region = MapRegion(area)
+    # Map.regionの変数を取得
+    lon_step = region.lon_step  # 経度線を描く間隔
+    lon_min = region.lon_min  # 経度範囲下限
+    lon_max = region.lon_max  # 経度範囲上限
+    lat_step = region.lat_step  # 緯度線を描く間隔
+    lat_min = region.lat_min  # 緯度範囲下限
+    lat_max = region.lat_max  # 緯度範囲上限
     if area == "Japan":
         ms = 1  # マーカーサイズ
         length = 4  # 矢羽のサイズ
         lw = 0.6  # 矢羽の幅
-        lon_step = 5  # 経度線を描く間隔
-        lat_step = 5  # 緯度線を描く間隔
-        lon_0 = 135.0  # 経度中心
-        lat_0 = 35.0  # 緯度中心
-        lon_min = 120.0
-        lon_max = 150.0
-        lat_min = 20.0
-        lat_max = 50.0
-    elif area == "Tokyo":
+    else:
         ms = 6  # マーカーサイズ
         length = 7  # 矢羽のサイズ
         lw = 1.5  # 矢羽の幅
-        lon_step = 0.5  # 経度線を描く間隔
-        lat_step = 0.5  # 緯度線を描く間隔
-        lon_0 = 140.0  # 経度中心
-        lat_0 = 35.0  # 緯度中心
-        lon_min = 139.2
-        lon_max = 141.2
-        lat_min = 34.8
-        lat_max = 36.8
-    else:
-        print('Unknown input type')
-        quit()
     #
     # cartopy呼び出し
     ax = fig.add_axes((0.1, 0.3, 0.8, 0.6), projection=ccrs.PlateCarree())
-    #                 projection=ccrs.LambertConformal(central_longitude=lon_0,
-    #                                                  central_latitude=lat_0))
     #ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
     ax.set_extent([lon_min, lon_max, lat_min, lat_max])  # 領域の限定
 
@@ -197,10 +225,13 @@ def draw(lons,
         ax.add_feature(cfeature.LAKES)
     else:
         ax.coastlines(color='k', linewidth=0.8)
-
+    #
+    # 都道府県境を描く
+    if opt_pref:
+        add_pref(ax, linestyle='-', facecolor='none', linewidth=0.8)
     #
     # temp2colクラスの初期化（気温の範囲はtmin、tmaxで設定、tstepで刻み幅）
-    t2c = temp2col(cmap='jet', tmin=4., tmax=24.)
+    t2c = temp2col(cmap='jet', tmin=16., tmax=36.)
     # マーカーをプロット
     for xc, yc, dc in zip(lons, lats, d):
         if math.isnan(dc):
@@ -210,14 +241,15 @@ def draw(lons,
             ax.plot(xc, yc, marker='o', color=c, markersize=ms)
 
     # 矢羽を描く
-    ax.barbs(lons,
-             lats,
-             u,
-             v,
-             sizes=dict(emptybarb=0.0),
-             length=length,
-             linewidth=lw,
-             color='k')
+    if opt_barbs:
+        ax.barbs(lons,
+                 lats,
+                 u,
+                 v,
+                 sizes=dict(emptybarb=0.0),
+                 length=length,
+                 linewidth=lw,
+                 color='k')
 
     # タイトル
     if title is not None:
@@ -235,17 +267,25 @@ def draw(lons,
 # 時刻の形式
 # tinfo = "2021/03/12 16:10:00JST"
 # tinfof = "20210312161000"
-def main(tinfo=None, tinfof=None, area="Japan", output_dir='.'):
+def main(tinfo=None, tinfof=None, area="Japan", opt_barbs=False, output_dir='.'):
     if tinfof is not None:
         # 入力ファイル名
         input_filename = tinfof + ".csv"
         # 出力ファイル名
-        output_filename = os.path.join(output_dir,
-                                       area + "_temp+wind_" + tinfof + ".png")
+        if opt_barbs:
+            output_filename = os.path.join(
+                output_dir, area + "_temp+wind_" + tinfof + ".png")
+        else:
+            output_filename = os.path.join(output_dir,
+                                           area + "_temp_" + tinfof + ".png")
         # データの取得
         lons, lats, temp, u, v = read_data(input_filename)
         print(lons.shape, lats.shape, temp.shape, u.shape, v.shape)
-        draw(lons, lats, temp, u, v, output_filename, title=tinfo, area=area)
+        draw(lons, lats, temp, u, v, output_filename, title=tinfo,
+	area=area,
+             opt_pref=True,
+             opt_barbs=opt_barbs,
+             opt_mapcolor=True)
 
 
 if __name__ == '__main__':
@@ -254,8 +294,10 @@ if __name__ == '__main__':
     os_mkdir(output_dir)
 
     # 開始・終了時刻
-    time_sta = datetime(2021, 6, 30, 12, 0, 0)
-    time_end = datetime(2021, 6, 30, 12, 0, 0)
+    #time_sta = datetime(2021, 7, 19, 6, 0, 0)
+    #time_end = datetime(2021, 7, 19, 17, 30, 0)
+    time_sta = datetime(2021, 7, 19, 17, 30, 0)
+    time_end = datetime(2021, 7, 19, 17, 30, 0)
     time_step = timedelta(minutes=10)
     time = time_sta
     while True:
@@ -263,7 +305,7 @@ if __name__ == '__main__':
             tinfo = time.strftime("%Y/%m/%d %H:%M:%SJST")
             tinfof = time.strftime("%Y%m%d%H%M%S")
             print(tinfo)
-            main(tinfo, tinfof, area=area, output_dir=output_dir)
+            main(tinfo, tinfof, area=area, opt_barbs=opt_barbs, output_dir=output_dir)
         else:
             break
         time = time + time_step

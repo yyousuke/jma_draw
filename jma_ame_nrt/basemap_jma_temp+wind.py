@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import math
 import json
-import urllib.request
+#import urllib.request
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -234,8 +234,8 @@ def main(tinfo=None, tinfof=None):
 if __name__ == '__main__':
 
     # 開始・終了時刻
-    time_sta = datetime(2021, 5, 2, 10, 0, 0)
-    time_end = datetime(2021, 5, 2, 14, 30, 0)
+    time_sta = datetime(2021, 6, 30, 12, 0, 0)
+    time_end = datetime(2021, 7, 1, 9, 0, 0)
     time_step = timedelta(minutes=10)
     time = time_sta
     while True:

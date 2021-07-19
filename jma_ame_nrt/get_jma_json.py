@@ -76,7 +76,7 @@ if __name__ == '__main__':
     else:  # 指定した時刻範囲で取得(opt_latest = Falseの場合のみ有効)
         # 開始・終了時刻
         time_sta = datetime(2021, 6, 30, 0, 0, 0)
-        time_end = datetime(2021, 7, 4, 21, 0, 0)
+        time_end = datetime(2021, 7, 19, 20, 30, 0)
         time_step = timedelta(minutes=10)
         time_now = time_sta
         while True:

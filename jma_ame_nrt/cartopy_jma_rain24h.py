@@ -8,6 +8,7 @@ import os
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+from jmaloc import MapRegion
 from matplotlib.colors import ListedColormap
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -22,7 +23,9 @@ output_dir = "./map"
 #area = "Japan"
 #area = "Tokyo"
 #area = "Tokai"
-area = "Shizuoka"
+#area = "Shizuoka_a"
+area = "Tyugoku"
+#area = "Kagoshima"
 
 
 # dir_name: 作成するディレクトリ名
@@ -66,7 +69,7 @@ class collevs():
         gradient_array = np.vstack((gradient, gradient))
         ticks = list()
         labels = list()
-        ll = self.clevs
+        ll = self.clevs[:-1]
         for n, t in enumerate(ll):
             ticks.append(n - 0.5)
             if t >= 1.:
@@ -250,57 +253,24 @@ def draw(lons,
 
     # プロット領域の作成
     fig = plt.figure(figsize=(18, 12))
+    #
+    # MapRegion Classの初期化
+    region = MapRegion(area)
+    # Map.regionの変数を取得
+    lon_step = region.lon_step  # 経度線を描く間隔
+    lon_min = region.lon_min  # 経度範囲下限
+    lon_max = region.lon_max  # 経度範囲上限
+    lat_step = region.lat_step  # 緯度線を描く間隔
+    lat_min = region.lat_min  # 緯度範囲下限
+    lat_max = region.lat_max  # 緯度範囲上限
     if area == "Japan":
         ms = 1  # マーカーサイズ
         length = 4  # 矢羽のサイズ
         lw = 0.6  # 矢羽の幅
-        lon_step = 5  # 経度線を描く間隔
-        lat_step = 5  # 緯度線を描く間隔
-        lon_0 = 135.0  # 経度中心
-        lat_0 = 35.0  # 緯度中心
-        lon_min = 120.0
-        lon_max = 150.0
-        lat_min = 20.0
-        lat_max = 50.0
-    elif area == "Tokyo":
-        ms = 6  # マーカーサイズ
-        length = 7  # 矢羽のサイズ
-        lw = 1.5  # 矢羽の幅
-        lon_step = 0.5  # 経度線を描く間隔
-        lat_step = 0.5  # 緯度線を描く間隔
-        lon_0 = 140.0  # 経度中心
-        lat_0 = 35.0  # 緯度中心
-        lon_min = 139.2
-        lon_max = 141.2
-        lat_min = 34.8
-        lat_max = 36.8
-    elif area == "Tokai":
-        ms = 6  # マーカーサイズ
-        length = 7  # 矢羽のサイズ
-        lw = 1.5  # 矢羽の幅
-        lon_step = 1.0  # 経度線を描く間隔
-        lat_step = 1.0  # 緯度線を描く間隔
-        lon_0 = 137.0  # 経度中心
-        lat_0 = 35.0  # 緯度中心
-        lon_min = 135.0
-        lon_max = 142.0
-        lat_min = 32.0
-        lat_max = 39.0
-    elif area == "Shizuoka":
-        ms = 6  # マーカーサイズ
-        length = 7  # 矢羽のサイズ
-        lw = 1.5  # 矢羽の幅
-        lon_step = 0.5  # 経度線を描く間隔
-        lat_step = 0.5  # 緯度線を描く間隔
-        lon_0 = 137.0  # 経度中心
-        lat_0 = 35.0  # 緯度中心
-        lon_min = 137.0
-        lon_max = 140.0
-        lat_min = 34.0
-        lat_max = 37.0
     else:
-        print('Unknown input type')
-        quit()
+        ms = 6  # マーカーサイズ
+        length = 7  # 矢羽のサイズ
+        lw = 1.5  # 矢羽の幅
     #
     # cartopy呼び出し
     ax = fig.add_axes((0.1, 0.3, 0.8, 0.6), projection=ccrs.PlateCarree())
@@ -413,8 +383,10 @@ if __name__ == '__main__':
     os_mkdir(output_dir)
 
     # 開始・終了時刻
-    time_sta = datetime(2021, 6, 30, 0, 0, 0)
-    time_end = datetime(2021, 7, 4, 21, 0, 0)
+    #time_sta = datetime(2021, 6, 30, 0, 0, 0)
+    #time_sta = datetime(2021, 7, 5, 15, 0, 0)
+    time_sta = datetime(2021, 7, 7, 15, 0, 0)
+    time_end = datetime(2021, 7, 12, 12, 0, 0)
     time_step = timedelta(hours=3)
     #time_step = timedelta(minutes=10)
     time = time_sta
