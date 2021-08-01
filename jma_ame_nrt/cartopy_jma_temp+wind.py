@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from pandas import Series, DataFrame
+#from pandas import Series, DataFrame
 import pandas as pd
 import numpy as np
 import math
-import json
+#import json
 import os
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
@@ -20,12 +20,14 @@ output_dir = "./map"
 
 # 地域の選択
 #area = "Japan"
-area = "Tokyo_b"
+#area = "Tokyo_a"
+#area = "Tokyo_b"
 #area = "Tokyo"
+area = "Sapporo"
 
 # 矢羽を描くかどうか
-opt_barbs = False
-#opt_barbs = True
+#opt_barbs = False
+opt_barbs = True
 
 
 # dir_name: 作成するディレクトリ名
@@ -96,6 +98,9 @@ def read_data(input_filename):
         lon = float(lon[0]) + float(lon[1]) / 60.0
         lat = float(lat[0]) + float(lat[1]) / 60.0
         #print(lon.strip(), lat.strip(), temp)
+        # データの保存
+        out_lon.append(lon)
+        out_lat.append(lat)
         try:
             # 気温の計算
             temp.isdecimal()
@@ -105,6 +110,12 @@ def read_data(input_filename):
             else:
                 temp = np.nan
             #print(temp)
+            # データの保存
+            out_temp.append(temp)
+        except:
+            out_temp.append(np.nan)
+        #
+        try:
             # 風向・風速の計算
             wd.isdecimal()
             ws.isdecimal()
@@ -120,17 +131,11 @@ def read_data(input_filename):
             u = ws * np.cos((270.0 - wd) / 180.0 * np.pi)
             v = ws * np.sin((270.0 - wd) / 180.0 * np.pi)
             # データの保存
-            out_lon.append(lon)
-            out_lat.append(lat)
-            out_temp.append(temp)
             out_u.append(u)
             out_v.append(v)
         except:
-            continue
-            #print("Warn: ", temp)
-        #print("len = ", len(out_lon))
-        #if lon > 140.75 and int(lat) == 35:
-        #    print(lon, lat, temp, ws, wd, u, v)
+            out_u.append(np.nan)
+            out_v.append(np.nan)
     return np.array(out_lon), np.array(out_lat), np.array(out_temp), np.array(
         out_u), np.array(out_v)
 
@@ -267,7 +272,11 @@ def draw(lons,
 # 時刻の形式
 # tinfo = "2021/03/12 16:10:00JST"
 # tinfof = "20210312161000"
-def main(tinfo=None, tinfof=None, area="Japan", opt_barbs=False, output_dir='.'):
+def main(tinfo=None,
+         tinfof=None,
+         area="Japan",
+         opt_barbs=False,
+         output_dir='.'):
     if tinfof is not None:
         # 入力ファイル名
         input_filename = tinfof + ".csv"
@@ -281,8 +290,14 @@ def main(tinfo=None, tinfof=None, area="Japan", opt_barbs=False, output_dir='.')
         # データの取得
         lons, lats, temp, u, v = read_data(input_filename)
         print(lons.shape, lats.shape, temp.shape, u.shape, v.shape)
-        draw(lons, lats, temp, u, v, output_filename, title=tinfo,
-	area=area,
+        draw(lons,
+             lats,
+             temp,
+             u,
+             v,
+             output_filename,
+             title=tinfo,
+             area=area,
              opt_pref=True,
              opt_barbs=opt_barbs,
              opt_mapcolor=True)
@@ -296,8 +311,8 @@ if __name__ == '__main__':
     # 開始・終了時刻
     #time_sta = datetime(2021, 7, 19, 6, 0, 0)
     #time_end = datetime(2021, 7, 19, 17, 30, 0)
-    time_sta = datetime(2021, 7, 19, 17, 30, 0)
-    time_end = datetime(2021, 7, 19, 17, 30, 0)
+    time_sta = datetime(2021, 7, 31, 6, 0, 0)
+    time_end = datetime(2021, 7, 31, 18, 0, 0)
     time_step = timedelta(minutes=10)
     time = time_sta
     while True:
@@ -305,7 +320,11 @@ if __name__ == '__main__':
             tinfo = time.strftime("%Y/%m/%d %H:%M:%SJST")
             tinfof = time.strftime("%Y%m%d%H%M%S")
             print(tinfo)
-            main(tinfo, tinfof, area=area, opt_barbs=opt_barbs, output_dir=output_dir)
+            main(tinfo,
+                 tinfof,
+                 area=area,
+                 opt_barbs=opt_barbs,
+                 output_dir=output_dir)
         else:
             break
         time = time + time_step
