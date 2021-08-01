@@ -30,11 +30,11 @@ area = "Tyugoku"
 
 # dir_name: 作成するディレクトリ名
 def os_mkdir(dir_name):
-    if not os.path.isdir(output_dir):
-        if os.path.isfile(output_dir):
-            os.remove(output_dir)
-        print("mkdir " + output_dir)
-        os.mkdir(output_dir)
+    if not os.path.isdir(dir_name):
+        if os.path.isfile(dir_name):
+            os.remove(dir_name)
+        print("mkdir " + dir_name)
+        os.mkdir(dir_name)
 
 
 # clevs: levels of boundary
