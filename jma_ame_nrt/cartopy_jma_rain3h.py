@@ -46,7 +46,7 @@ class collevs():
         self.ccols = ccols
         if len(clevs) != len(ccols) + 1:
             print(len(clevs), len(ccols))
-            raise Exception('len(clevs) must be len(ccols)+1')
+            raise ValueError('len(clevs) must be len(ccols)+1')
 
     def conv(self, val):
         if val < float(self.clevs[0]):
