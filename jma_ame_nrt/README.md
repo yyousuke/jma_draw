@@ -77,7 +77,13 @@ areaで作図する範囲を指定する
 
 他に、首都圏を拡大するTokyo_a、Tokyo_b、Chibaと静岡付近を拡大するShizuoka_aが指定可能
 
+カラーバーに設定する気温の範囲は下限：tmin、上限：tmax、ラベルの値を描く間隔はtstepで与える
+
 opt_barbs は、矢羽を描くかどうか（TrueかFalseで指定）
+
+矢羽を描く値は、短矢羽：half、長矢羽：full、旗矢羽：flagで設定する
+
+作図：
 
 % python3 catopy_jma_temp+wind.py
 
@@ -98,6 +104,7 @@ cartopy_jma_rain3h.py、cartopy_jma_rain24h.py
 
 areaで作図する範囲を指定する
 
+作図：
 
 % python3 cartopy_jma_rain3h.py
 

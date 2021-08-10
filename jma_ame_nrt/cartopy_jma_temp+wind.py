@@ -22,12 +22,27 @@ output_dir = "./map"
 #area = "Japan"
 #area = "Tokyo_a"
 #area = "Tokyo_b"
-#area = "Tokyo"
-area = "Sapporo"
+area = "Tokyo"
+#area = "Sapporo"
+
+# 気温の範囲
+tmin = 18.
+tmax = 38.
+tstep = 2.
+#
+#tmin = 10.
+#tmax = 40.
+#tstep = 3.
 
 # 矢羽を描くかどうか
 #opt_barbs = False
 opt_barbs = True
+#
+# 矢羽を描く値
+half = 1.
+full = 2.
+flag = 10.
+barb_increments = dict(half=half, full=full, flag=flag)
 
 
 # dir_name: 作成するディレクトリ名
@@ -39,6 +54,9 @@ def os_mkdir(dir_name):
         os.mkdir(dir_name)
 
 
+# カラーマップを描く
+#  tmin, tmax, tstep: 下限、上限と値を描く間隔
+#  cmap: 色テーブルの名前
 class temp2col():
     def __init__(self, tmin=0., tmax=20., tstep=2, cmap='jet'):
         self.tmin = tmin
@@ -77,6 +95,8 @@ def str_rep(inp):
     return inp.replace("[", "").replace("]", "").replace(",", "").split()
 
 
+# csvデータを読み込む
+# input_filename: 入力ファイル名
 def read_data(input_filename):
     out_lon = list()
     out_lat = list()
@@ -141,6 +161,9 @@ def read_data(input_filename):
 
 
 # ax: cartopyを呼び出した際のaxes
+# facecolor: 塗り潰す色
+# edgecolor: 線の色
+# linewidth: 線の幅
 def add_pref(ax,
              linestyle='-',
              facecolor='none',
@@ -168,6 +191,18 @@ def add_pref(ax,
                           linestyle=linestyle)
 
 
+#  lon, lat: 経度、緯度データ
+#  d: 気温データ
+#  u, v: 東西風、南北風データ
+#  output_filename: 出力ファイル名
+#  opt_mapcolor: 陸・海・湖を塗り分けて描く
+#  opt_pref: 都道府県境を描く
+#  opt_barbs: 矢羽を描く
+#  barb_increments: #  短矢羽、長矢羽、旗矢羽を描く値
+#     （短矢羽: 5m/s、長矢羽: 10m/s、旗矢羽: 50m/s）
+#  titl: 図のタイトル
+#  tmin, tmax, tstep: 下限、上限と値を描く間隔
+#  area: 図を描く範囲
 def draw(lons,
          lats,
          d,
@@ -177,7 +212,11 @@ def draw(lons,
          opt_mapcolor=False,
          opt_pref=False,
          opt_barbs=False,
+         barb_increments=dict(half=5., full=10., flag=50.),
          title=None,
+         tmin=None,
+         tmax=None,
+         tstep=None,
          area=None):
 
     # プロット領域の作成
@@ -199,7 +238,8 @@ def draw(lons,
         lw = 0.6  # 矢羽の幅
     else:
         ms = 6  # マーカーサイズ
-        length = 7  # 矢羽のサイズ
+        length = 6  # 矢羽のサイズ
+        #length = 7  # 矢羽のサイズ
         lw = 1.5  # 矢羽の幅
     #
     # cartopy呼び出し
@@ -236,11 +276,13 @@ def draw(lons,
         add_pref(ax, linestyle='-', facecolor='none', linewidth=0.8)
     #
     # temp2colクラスの初期化（気温の範囲はtmin、tmaxで設定、tstepで刻み幅）
-    t2c = temp2col(cmap='jet', tmin=16., tmax=36.)
+    t2c = temp2col(cmap='jet', tmin=tmin, tmax=tmax, tstep=tstep)
+    #t2c = temp2col(cmap='jet', tmin=10., tmax=40., tstep=3.)
+    #t2c = temp2col(cmap='jet', tmin=18., tmax=38.)
     # マーカーをプロット
     for xc, yc, dc in zip(lons, lats, d):
         if math.isnan(dc):
-            print("Warn ", dc)
+            print("Warn ", xc, yc, dc)
         else:
             c = t2c.conv(dc)
             ax.plot(xc, yc, marker='o', color=c, markersize=ms)
@@ -254,7 +296,15 @@ def draw(lons,
                  sizes=dict(emptybarb=0.0),
                  length=length,
                  linewidth=lw,
+                 barb_increments=barb_increments,
                  color='k')
+        # 矢羽の値をプロット
+        f1 = barb_increments['half']
+        f2 = barb_increments['full']
+        f3 = barb_increments['flag']
+        name = f'half: {f1:.0f}m/s, full: {f2:.0f}m/s, flag: {f3:.0f}m/s'
+        print(name)
+        ax.text(lon_max-1.2, lat_min+0.1, name,  ha='center', va='center')
 
     # タイトル
     if title is not None:
@@ -270,12 +320,22 @@ def draw(lons,
 
 
 # 時刻の形式
-# tinfo = "2021/03/12 16:10:00JST"
-# tinfof = "20210312161000"
+#  tinfo = "2021/03/12 16:10:00JST"
+#  tinfof = "20210312161000"
+#  area: 図を描く範囲
+#  opt_barbs: 矢羽を描く
+#  barb_increments: #  短矢羽、長矢羽、旗矢羽を描く値
+#     （短矢羽: 5m/s、長矢羽: 10m/s、旗矢羽: 50m/s）
+#  tmin, tmax, tstep: 下限、上限と値を描く間隔
+#  output_dir: 出力ディレクトリ
 def main(tinfo=None,
          tinfof=None,
          area="Japan",
          opt_barbs=False,
+         barb_increments=dict(half=5., full=10., flag=50.),
+         tmin=None,
+         tmax=None,
+         tstep=None,
          output_dir='.'):
     if tinfof is not None:
         # 入力ファイル名
@@ -296,11 +356,15 @@ def main(tinfo=None,
              u,
              v,
              output_filename,
-             title=tinfo,
-             area=area,
+             opt_mapcolor=True,
              opt_pref=True,
              opt_barbs=opt_barbs,
-             opt_mapcolor=True)
+             barb_increments=barb_increments,
+             tmin=tmin,
+             tmax=tmax,
+             tstep=tstep,
+             title=tinfo,
+             area=area)
 
 
 if __name__ == '__main__':
@@ -309,10 +373,8 @@ if __name__ == '__main__':
     os_mkdir(output_dir)
 
     # 開始・終了時刻
-    #time_sta = datetime(2021, 7, 19, 6, 0, 0)
-    #time_end = datetime(2021, 7, 19, 17, 30, 0)
-    time_sta = datetime(2021, 7, 31, 6, 0, 0)
-    time_end = datetime(2021, 7, 31, 18, 0, 0)
+    time_sta = datetime(2021, 8, 10, 0, 0, 0)
+    time_end = datetime(2021, 8, 10, 14, 0, 0)
     time_step = timedelta(minutes=10)
     time = time_sta
     while True:
@@ -324,6 +386,10 @@ if __name__ == '__main__':
                  tinfof,
                  area=area,
                  opt_barbs=opt_barbs,
+                 barb_increments=barb_increments,
+                 tmin=tmin,
+                 tmax=tmax,
+                 tstep=tstep,
                  output_dir=output_dir)
         else:
             break
