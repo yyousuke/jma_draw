@@ -422,17 +422,8 @@ if __name__ == '__main__':
 
     # 出力ディレクトリ作成
     os_mkdir(output_dir)
-    help(temp2col)
-    quit()
 
     # 開始・終了時刻
-    #time_sta = datetime(2021, 7, 19, 6, 0, 0)
-    #time_end = datetime(2021, 7, 19, 17, 30, 0)
-    #time_sta = datetime(2021, 7, 31, 6, 0, 0)
-    #time_end = datetime(2021, 7, 31, 18, 0, 0)
-    #time_sta = datetime(2021, 8, 9, 0, 0, 0)
-    #time_sta = datetime(2021, 8, 10, 0, 0, 0)
-    #time_sta = datetime(2021, 8, 10, 0, 0, 0)
     time_sta = datetime(2021, 8, 10, 19, 0, 0)
     time_end = datetime(2021, 8, 10, 23, 0, 0)
     time_step = timedelta(minutes=10)
