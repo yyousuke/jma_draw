@@ -45,8 +45,15 @@ flag = 10.
 barb_increments = dict(half=half, full=full, flag=flag)
 
 
-# dir_name: 作成するディレクトリ名
 def os_mkdir(dir_name):
+    """ディレクトリを作成する
+
+    Parameters:
+    ----------
+    dir_name: str
+        作成するディレクトリ名
+    ----------
+    """
     if not os.path.isdir(dir_name):
         if os.path.isfile(dir_name):
             os.remove(dir_name)
@@ -54,10 +61,20 @@ def os_mkdir(dir_name):
         os.mkdir(dir_name)
 
 
-# カラーマップを描く
-#  tmin, tmax, tstep: 下限、上限と値を描く間隔
-#  cmap: 色テーブルの名前
 class temp2col():
+    """カラーマップの設定
+
+    Parameters:
+    ----------
+    tmin: float
+        カラーマップの下限
+    tmax: float
+        カラーマップの上限
+    cmap: str
+        色テーブルの名前
+    ----------
+    """
+
     def __init__(self, tmin=0., tmax=20., tstep=2, cmap='jet'):
         self.tmin = tmin
         self.tmax = tmax
@@ -66,11 +83,35 @@ class temp2col():
         self.cm = plt.get_cmap(self.cmap)
 
     def conv(self, temp):
+        """気温データをカラーに変換
+
+        Parameters:
+        ----------
+        temp: float
+            気温データ
+        Returns:
+        ----------
+        cmap
+            カラーマップ
+        ----------
+        """
         n = (temp - self.tmin) / (self.tmax - self.tmin) * self.cm.N
         n = max(min(n, self.cm.N), 0)
         return self.cm(int(n))
 
     def colorbar(self, fig=None, anchor=(0.35, 0.24), size=(0.3, 0.02)):
+        """カラーバーを描く
+
+        Parameters:
+        ----------
+        fig: matplotlib Figure
+            プロット領域を作成した際の戻り値
+        anchor: tuple(float, float)
+            カラーバーの位置
+        size: tuple(float, float)
+            カラーバーの大きさ
+        ----------
+        """
         if fig is None:
             raise Exception('fig is needed')
         ax = fig.add_axes(anchor + size)
@@ -160,15 +201,25 @@ def read_data(input_filename):
         out_u), np.array(out_v)
 
 
-# ax: cartopyを呼び出した際のaxes
-# facecolor: 塗り潰す色
-# edgecolor: 線の色
-# linewidth: 線の幅
 def add_pref(ax,
              linestyle='-',
              facecolor='none',
              edgecolor='k',
              linewidth=0.8):
+    """都道府県境を描く
+
+    Parameters:
+    ----------
+    ax: matplotlib Axes
+        cartopyを呼び出した際のaxes
+    facecolor: str
+        塗り潰す色
+    edgecolor: str
+        線の色
+    linewidth: str
+        線の幅
+    ----------
+    """
     # 10mの解像度のデータ
     shpfilename = shapereader.natural_earth(resolution='10m',
                                             category='cultural',
@@ -371,10 +422,19 @@ if __name__ == '__main__':
 
     # 出力ディレクトリ作成
     os_mkdir(output_dir)
+    help(temp2col)
+    quit()
 
     # 開始・終了時刻
-    time_sta = datetime(2021, 8, 10, 0, 0, 0)
-    time_end = datetime(2021, 8, 10, 14, 0, 0)
+    #time_sta = datetime(2021, 7, 19, 6, 0, 0)
+    #time_end = datetime(2021, 7, 19, 17, 30, 0)
+    #time_sta = datetime(2021, 7, 31, 6, 0, 0)
+    #time_end = datetime(2021, 7, 31, 18, 0, 0)
+    #time_sta = datetime(2021, 8, 9, 0, 0, 0)
+    #time_sta = datetime(2021, 8, 10, 0, 0, 0)
+    #time_sta = datetime(2021, 8, 10, 0, 0, 0)
+    time_sta = datetime(2021, 8, 10, 19, 0, 0)
+    time_end = datetime(2021, 8, 10, 23, 0, 0)
     time_step = timedelta(minutes=10)
     time = time_sta
     while True:
