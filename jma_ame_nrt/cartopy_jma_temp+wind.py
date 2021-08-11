@@ -70,11 +70,12 @@ class temp2col():
         カラーマップの下限
     tmax: float
         カラーマップの上限
+    tstep: float
+        カラーマップのラベルを描く間隔
     cmap: str
         色テーブルの名前
     ----------
     """
-
     def __init__(self, tmin=0., tmax=20., tstep=2, cmap='jet'):
         self.tmin = tmin
         self.tmax = tmax
@@ -89,6 +90,7 @@ class temp2col():
         ----------
         temp: float
             気温データ
+        ----------
         Returns:
         ----------
         cmap
@@ -133,12 +135,19 @@ class temp2col():
 
 
 def str_rep(inp):
+    """データの文字列を処理する"""
     return inp.replace("[", "").replace("]", "").replace(",", "").split()
 
 
-# csvデータを読み込む
-# input_filename: 入力ファイル名
 def read_data(input_filename):
+    """AMeDAS csvデータを読み込む
+
+    Parameters:
+    ----------
+    input_filename: str
+        入力ファイル名
+    ----------
+    """
     out_lon = list()
     out_lat = list()
     out_temp = list()
@@ -242,18 +251,6 @@ def add_pref(ax,
                           linestyle=linestyle)
 
 
-#  lon, lat: 経度、緯度データ
-#  d: 気温データ
-#  u, v: 東西風、南北風データ
-#  output_filename: 出力ファイル名
-#  opt_mapcolor: 陸・海・湖を塗り分けて描く
-#  opt_pref: 都道府県境を描く
-#  opt_barbs: 矢羽を描く
-#  barb_increments: #  短矢羽、長矢羽、旗矢羽を描く値
-#     （短矢羽: 5m/s、長矢羽: 10m/s、旗矢羽: 50m/s）
-#  titl: 図のタイトル
-#  tmin, tmax, tstep: 下限、上限と値を描く間隔
-#  area: 図を描く範囲
 def draw(lons,
          lats,
          d,
@@ -269,10 +266,51 @@ def draw(lons,
          tmax=None,
          tstep=None,
          area=None):
+    """cartopyを用いて作図を行う
 
+    Parameters:
+    ----------
+    lons: ndarray
+        経度データ
+    lats: ndarray
+        緯度データ
+    d: ndarray
+        気温データ
+    u: ndarray
+        東西風データ
+    v: ndarray
+        南北風データ
+    output_filename: str
+        出力ファイル名
+    opt_mapcolor: bool
+        True: 陸・海・湖を塗り分けて描く
+        False: 海岸線を描く
+    opt_pref: bool
+        都道府県境を描くかどうか
+    opt_barbs: bool
+        矢羽を描くかどうか
+    barb_increment: dict
+        矢羽のプロパティ
+        float half
+            短矢羽
+        float full
+            長矢羽
+        float flag
+            旗矢羽
+    title: str
+        図のタイトル
+    tmin: float
+        カラーマップの下限
+    tmax: float
+        カラーマップの上限
+    tstep: float
+        カラーマップのラベルを描く間隔
+    area: str
+        図を描く領域
+    ----------
+    """
     # プロット領域の作成
     fig = plt.figure(figsize=(18, 12))
-    #fig = plt.figure(figsize=(9, 6))
     #
     # MapRegion Classの初期化
     region = MapRegion(area)
@@ -312,7 +350,6 @@ def draw(lons,
     gl.top_labels = False  # 上側の目盛り線ラベルを描かない
     gl.right_labels = False  # 下側の目盛り線ラベルを描かない
 
-    # 海岸線を描く
     if opt_mapcolor:
         # 陸・海・湖を塗り分けて描く
         ax.add_feature(cfeature.LAND)
@@ -320,6 +357,7 @@ def draw(lons,
         ax.add_feature(cfeature.COASTLINE, linewidth=0.8)
         ax.add_feature(cfeature.LAKES)
     else:
+        # 海岸線を描く
         ax.coastlines(color='k', linewidth=0.8)
     #
     # 都道府県境を描く
@@ -328,8 +366,6 @@ def draw(lons,
     #
     # temp2colクラスの初期化（気温の範囲はtmin、tmaxで設定、tstepで刻み幅）
     t2c = temp2col(cmap='jet', tmin=tmin, tmax=tmax, tstep=tstep)
-    #t2c = temp2col(cmap='jet', tmin=10., tmax=40., tstep=3.)
-    #t2c = temp2col(cmap='jet', tmin=18., tmax=38.)
     # マーカーをプロット
     for xc, yc, dc in zip(lons, lats, d):
         if math.isnan(dc):
@@ -355,7 +391,7 @@ def draw(lons,
         f3 = barb_increments['flag']
         name = f'half: {f1:.0f}m/s, full: {f2:.0f}m/s, flag: {f3:.0f}m/s'
         print(name)
-        ax.text(lon_max-1.2, lat_min+0.1, name,  ha='center', va='center')
+        ax.text(lon_max - 1.2, lat_min + 0.1, name, ha='center', va='center')
 
     # タイトル
     if title is not None:
@@ -370,15 +406,6 @@ def draw(lons,
     plt.close()
 
 
-# 時刻の形式
-#  tinfo = "2021/03/12 16:10:00JST"
-#  tinfof = "20210312161000"
-#  area: 図を描く範囲
-#  opt_barbs: 矢羽を描く
-#  barb_increments: #  短矢羽、長矢羽、旗矢羽を描く値
-#     （短矢羽: 5m/s、長矢羽: 10m/s、旗矢羽: 50m/s）
-#  tmin, tmax, tstep: 下限、上限と値を描く間隔
-#  output_dir: 出力ディレクトリ
 def main(tinfo=None,
          tinfof=None,
          area="Japan",
@@ -388,6 +415,38 @@ def main(tinfo=None,
          tmax=None,
          tstep=None,
          output_dir='.'):
+    """指定された時刻のデータの作図
+
+    Parameters:
+    ----------
+    tinfo: str
+        図のタイトルに表示する時刻
+        (形式：2021/03/12 16:10:00JST)
+    tinfof: str
+        ファイル名の一部に用いる時刻
+        (形式：20210312161000)
+    area: str
+        図を描く領域
+    opt_barbs: bool
+        矢羽を描くかどうか
+    barb_increment: dict
+        矢羽のプロパティ
+        float half
+            短矢羽
+        float full
+            長矢羽
+        float flag
+            旗矢羽
+    tmin: float
+        カラーマップの下限
+    tmax: float
+        カラーマップの上限
+    tstep: float
+        カラーマップのラベルを描く間隔
+    output_dir: str
+        出力ディレクトリ
+    ----------
+    """
     if tinfof is not None:
         # 入力ファイル名
         input_filename = tinfof + ".csv"
@@ -424,8 +483,8 @@ if __name__ == '__main__':
     os_mkdir(output_dir)
 
     # 開始・終了時刻
-    time_sta = datetime(2021, 8, 10, 19, 0, 0)
-    time_end = datetime(2021, 8, 10, 23, 0, 0)
+    time_sta = datetime(2021, 8, 10, 0, 0, 0)
+    time_end = datetime(2021, 8, 10, 23, 50, 0)
     time_step = timedelta(minutes=10)
     time = time_sta
     while True:
