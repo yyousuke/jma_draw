@@ -21,15 +21,27 @@ from utils import common
 output_dir = "./map"
 
 #area = "Japan"
+area = "West"
 #area = "Tokyo"
 #area = "Tokai"
 #area = "Shizuoka_a"
-area = "Tyugoku"
+#area = "Tyugoku"
 #area = "Kagoshima"
 
+# 降水量の数字を表示するかどうか
+#opt_markerlabel = True
+opt_markerlabel = False
 
-# dir_name: 作成するディレクトリ名
+
 def os_mkdir(dir_name):
+    """ディレクトリを作成する
+
+    Parameters:
+    ----------
+    dir_name: str
+        作成するディレクトリ名
+    ----------
+    """
     if not os.path.isdir(dir_name):
         if os.path.isfile(dir_name):
             os.remove(dir_name)
@@ -352,7 +364,11 @@ def draw(lons,
 # 時刻の形式
 # tinfo = "2021/03/12 16:10:00JST"
 # tinfof = "20210312161000"
-def main(tinfo=None, tinfof=None, area="Japan", output_dir='.'):
+def main(tinfo=None,
+         tinfof=None,
+         area="Japan",
+         opt_markerlabel=True,
+         output_dir='.'):
     if tinfof is not None:
         # 入力ファイル名
         input_filename = tinfof + ".csv"
@@ -373,7 +389,7 @@ def main(tinfo=None, tinfof=None, area="Japan", output_dir='.'):
              title=tinfo,
              area=area,
              opt_pref=True,
-             opt_markerlabel=True,
+             opt_markerlabel=opt_markerlabel,
              opt_mapcolor=True)
 
 
@@ -385,8 +401,8 @@ if __name__ == '__main__':
     # 開始・終了時刻
     #time_sta = datetime(2021, 6, 30, 0, 0, 0)
     #time_sta = datetime(2021, 7, 5, 15, 0, 0)
-    time_sta = datetime(2021, 7, 7, 15, 0, 0)
-    time_end = datetime(2021, 7, 12, 12, 0, 0)
+    time_sta = datetime(2021, 8, 11, 0, 0, 0)
+    time_end = datetime(2021, 8, 13, 9, 0, 0)
     time_step = timedelta(hours=3)
     #time_step = timedelta(minutes=10)
     time = time_sta
@@ -395,7 +411,11 @@ if __name__ == '__main__':
             tinfo = time.strftime("%Y/%m/%d %H:%M:%SJST")
             tinfof = time.strftime("%Y%m%d%H%M%S")
             print(tinfo)
-            main(tinfo, tinfof, area=area, output_dir=output_dir)
+            main(tinfo,
+                 tinfof,
+                 area=area,
+                 opt_markerlabel=opt_markerlabel,
+                 output_dir=output_dir)
         else:
             break
         time = time + time_step

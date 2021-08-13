@@ -170,6 +170,14 @@ class MapRegion():
             self.lat_step = 1
             self.lat_min = 29.0
             self.lat_max = 34.0
+        # 近畿・中国・四国・九州
+        if sta == "West":
+            self.lon_step = 1
+            self.lon_min = 127.0
+            self.lon_max = 137.0
+            self.lat_step = 1
+            self.lat_min = 28.0
+            self.lat_max = 38.0
         # 奄美地方
         if sta == "Naze" or sta == "Amami":
             self.lon_step = 1
