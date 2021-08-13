@@ -1,143 +1,21 @@
 #!/usr/bin/env python3
-#from pandas import Series, DataFrame
 import pandas as pd
 import numpy as np
 import math
-#import json
 import os
+import sys
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from jmaloc import MapRegion
-from matplotlib.colors import ListedColormap
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import cartopy.io.shapereader as shapereader
 import itertools
-from utils import ColUtils
+from utils import collevs
+from utils import os_mkdir
+from utils import parse_command
 from utils import common
-
-# 出力ディレクトリ名
-output_dir = "./map"
-
-#area = "Japan"
-area = "West"
-#area = "Tokyo"
-#area = "Tokai"
-#area = "Shizuoka_a"
-area = "Tyugoku"
-#area = "Kagoshima"
-
-# 降水量の数字を表示するかどうか
-#opt_markerlabel = True
-opt_markerlabel = False
-
-
-def os_mkdir(dir_name):
-    """ディレクトリを作成する
-
-    Parameters:
-    ----------
-    dir_name: str
-        作成するディレクトリ名
-    ----------
-    """
-    if not os.path.isdir(dir_name):
-        if os.path.isfile(dir_name):
-            os.remove(dir_name)
-        print("mkdir " + dir_name)
-        os.mkdir(dir_name)
-
-
-# clevs: levels of boundary
-# ccols: colors between the boundaries (len(clevs) must be len(ccols)+1)
-class collevs():
-    def __init__(self, clevs=[], ccols=[]):
-        self.clevs_min = clevs[0]
-        self.clevs = clevs
-        self.ccols = ccols
-        if len(clevs) != len(ccols) + 1:
-            print(len(clevs), len(ccols))
-            raise ValueError('len(clevs) must be len(ccols)+1')
-
-    def conv(self, val):
-        if val < float(self.clevs[0]):
-            col = 'gray'
-            #col = self.ccols[0]
-        for n in np.arange(len(self.ccols)):
-            if val >= float(self.clevs[n]) and val < float(self.clevs[n + 1]):
-                col = self.ccols[n]
-        return col
-
-    def colorbar(self,
-                 fig=None,
-                 anchor=(0.35, 0.24),
-                 size=(0.3, 0.02),
-                 fontsize=11):
-        if fig is None:
-            raise Exception('fig is needed')
-        ax = fig.add_axes(anchor + size)
-        gradient = np.linspace(0, 1, len(self.clevs) - 1)
-        gradient_array = np.vstack((gradient, gradient))
-        ticks = list()
-        labels = list()
-        ll = self.clevs[:-1]
-        for n, t in enumerate(ll):
-            ticks.append(n - 0.5)
-            if t >= 1.:
-                labels.append("{f:.0f}".format(f=t))
-            else:
-                labels.append("{f:.1f}".format(f=t))
-        # カラーバーを描く
-        cmap = ListedColormap(self.ccols)
-        ax.imshow(gradient_array, aspect='auto', cmap=cmap)
-        ax.yaxis.set_major_locator(mticker.NullLocator())
-        ax.yaxis.set_minor_locator(mticker.NullLocator())
-        ax.set_xticks(ticks)
-        ax.set_xticklabels(labels, fontsize=fontsize)
-        #ax.set_axis_off()
-
-
-class temp2col():
-    def __init__(self, tmin=0., tmax=20., tstep=2, cmap='jet'):
-        self.tmin = tmin
-        self.tmax = tmax
-        self.tstep = tstep
-        self.cmap = cmap
-        try:
-            self.cm = plt.get_cmap(self.cmap)
-        except:
-            cutils = ColUtils(cmap)  # 色テーブルの選択
-            self.cm = cutils.get_ctable()  # 色テーブルの取得
-
-    def conv(self, temp):
-        n = (temp - self.tmin) / (self.tmax - self.tmin) * self.cm.N
-        n = max(min(n, self.cm.N), 0)
-        return self.cm(int(n))
-
-    def colorbar(self,
-                 fig=None,
-                 anchor=(0.35, 0.24),
-                 size=(0.3, 0.02),
-                 fontsize=11):
-        if fig is None:
-            raise Exception('fig is needed')
-        ax = fig.add_axes(anchor + size)
-        gradient = np.linspace(0, 1, self.cm.N)
-        gradient_array = np.vstack((gradient, gradient))
-        ticks = list()
-        labels = list()
-        ll = np.arange(self.tmin, self.tmax, self.tstep)
-        for t in ll:
-            ticks.append((t - self.tmin) / (self.tmax - self.tmin) * self.cm.N)
-            labels.append("{f:.0f}".format(f=t))
-        # カラーバーを描く
-        ax.imshow(gradient_array, aspect='auto', cmap=self.cm)
-        ax.yaxis.set_major_locator(mticker.NullLocator())
-        ax.yaxis.set_minor_locator(mticker.NullLocator())
-        ax.set_xticks(ticks)
-        ax.set_xticklabels(labels, fontsize=fontsize)
-        #ax.set_axis_off()
 
 
 def str_rep(inp):
@@ -145,6 +23,14 @@ def str_rep(inp):
 
 
 def read_data(input_filename):
+    """AMeDAS csvデータを読み込む
+
+    Parameters:
+    ----------
+    input_filename: str
+        入力ファイル名
+    ----------
+    """
     out_lon = list()
     out_lat = list()
     out_temp = list()
@@ -262,7 +148,37 @@ def draw(lons,
          opt_barbs=False,
          title=None,
          area=None):
+    """cartopyを用いて作図を行う
 
+    Parameters:
+    ----------
+    lons: ndarray
+        経度データ
+    lats: ndarray
+        緯度データ
+    d: ndarray
+        気温データ
+    u: ndarray
+        東西風データ
+    v: ndarray
+        南北風データ
+    output_filename: str
+        出力ファイル名
+    opt_mapcolor: bool
+        True: 陸・海・湖を塗り分けて描く
+        False: 海岸線を描く
+    opt_pref: bool
+        都道府県境を描くかどうか
+    opt_markerlabel: bool
+        マーカーの隣に降水量を表示するかどうか
+    opt_barbs: bool
+        矢羽を描くかどうか
+    title: str
+        図のタイトル（Noneなら描かない）
+    area: str
+        図を描く領域
+    ----------
+    """
     # プロット領域の作成
     fig = plt.figure(figsize=(18, 12))
     #
@@ -307,9 +223,10 @@ def draw(lons,
     if opt_mapcolor:
         # 陸・海・湖を塗り分けて描く
         ax.add_feature(cfeature.LAND, color='darkseagreen')
-        #ax.add_feature(cfeature.OCEAN)
-        ax.add_feature(cfeature.OCEAN, color='powderblue')
-        ax.add_feature(cfeature.COASTLINE, linewidth=0.8)
+        ax.add_feature(cfeature.OCEAN)
+        #ax.add_feature(cfeature.OCEAN, color='powderblue')
+        ax.add_feature(cfeature.COASTLINE)
+        #ax.add_feature(cfeature.COASTLINE, linewidth=0.8)
         ax.add_feature(cfeature.LAKES)
     else:
         ax.coastlines(resolution='10m', color='k', linewidth=0.8)
@@ -363,14 +280,29 @@ def draw(lons,
     plt.close()
 
 
-# 時刻の形式
-# tinfo = "2021/03/12 16:10:00JST"
-# tinfof = "20210312161000"
 def main(tinfo=None,
          tinfof=None,
          area="Japan",
          opt_markerlabel=True,
          output_dir='.'):
+    """指定された時刻で作図
+
+    Parameters:
+    ----------
+    tinfo: str
+        図のタイトルに表示する時刻
+        (形式：2021/03/12 16:10:00JST)
+    tinfof: str
+        ファイル名の一部に用いる時刻
+        (形式：20210312161000)
+    opt_markerlabel: bool
+        地点のプロットの横に降水量を表示するかどうか
+    area: str
+        図を描く領域
+    output_dir: str
+        出力ディレクトリ
+    ----------
+    """
     if tinfof is not None:
         # 入力ファイル名
         input_filename = tinfof + ".csv"
@@ -391,21 +323,26 @@ def main(tinfo=None,
              title=tinfo,
              area=area,
              opt_pref=True,
-             opt_markerlabel=True,
+             opt_markerlabel=opt_markerlabel,
              opt_mapcolor=True)
 
 
 if __name__ == '__main__':
-
+    # オプションの読み込み
+    args = parse_command(sys.argv, opt_lab=True)
+    # 開始・終了時刻
+    time_sta = pd.to_datetime(args.time_sta)
+    time_end = pd.to_datetime(args.time_end)
+    # 作図する領域
+    area = args.sta
+    # 出力ディレクトリ名
+    output_dir = args.output_dir
+    # 降水量を数字で表示するかどうか
+    opt_markerlabel = args.mlabel
     # 出力ディレクトリ作成
     os_mkdir(output_dir)
 
-    # 開始・終了時刻
-    #time_sta = datetime(2021, 6, 30, 0, 0, 0)
-    #time_sta = datetime(2021, 7, 5, 15, 0, 0)
-    #time_sta = datetime(2021, 7, 7, 15, 0, 0)
-    time_sta = datetime(2021, 7, 7, 15, 0, 0)
-    time_end = datetime(2021, 7, 12, 12, 0, 0)
+    # データの時間間隔
     time_step = timedelta(hours=1)
     #time_step = timedelta(hours=3)
     #time_step = timedelta(minutes=10)

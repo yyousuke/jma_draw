@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-#from pandas import Series, DataFrame
 import pandas as pd
 import numpy as np
 import math
-#import json
 import os
+import sys
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
@@ -13,10 +12,13 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import cartopy.io.shapereader as shapereader
 import itertools
+from utils import val2col
+from utils import os_mkdir
+from utils import parse_command
 from utils import common
 
 # 出力ディレクトリ名
-output_dir = "./map"
+#output_dir = "./map"
 
 # 地域の選択
 #area = "Japan"
@@ -36,7 +38,7 @@ tstep = 2.
 
 # 矢羽を描くかどうか
 #opt_barbs = False
-opt_barbs = True
+#opt_barbs = True
 #
 # 矢羽を描く値
 half = 1.
@@ -44,94 +46,6 @@ full = 2.
 flag = 10.
 barb_increments = dict(half=half, full=full, flag=flag)
 
-
-def os_mkdir(dir_name):
-    """ディレクトリを作成する
-
-    Parameters:
-    ----------
-    dir_name: str
-        作成するディレクトリ名
-    ----------
-    """
-    if not os.path.isdir(dir_name):
-        if os.path.isfile(dir_name):
-            os.remove(dir_name)
-        print("mkdir " + dir_name)
-        os.mkdir(dir_name)
-
-
-class temp2col():
-    """カラーマップの設定
-
-    Parameters:
-    ----------
-    tmin: float
-        カラーマップの下限
-    tmax: float
-        カラーマップの上限
-    tstep: float
-        カラーマップのラベルを描く間隔
-    cmap: str
-        色テーブルの名前
-    ----------
-    """
-    def __init__(self, tmin=0., tmax=20., tstep=2, cmap='jet'):
-        self.tmin = tmin
-        self.tmax = tmax
-        self.tstep = tstep
-        self.cmap = cmap
-        self.cm = plt.get_cmap(self.cmap)
-
-    def conv(self, temp):
-        """気温データをカラーに変換
-
-        Parameters:
-        ----------
-        temp: float
-            気温データ
-        ----------
-        Returns:
-        ----------
-        cmap
-            カラーマップ
-        ----------
-        """
-        n = (temp - self.tmin) / (self.tmax - self.tmin) * self.cm.N
-        n = max(min(n, self.cm.N), 0)
-        return self.cm(int(n))
-
-    def colorbar(self, fig=None, anchor=(0.35, 0.24), size=(0.3, 0.02)):
-        """カラーバーを描く
-
-        Parameters:
-        ----------
-        fig: matplotlib Figure
-            プロット領域を作成した際の戻り値
-        anchor: tuple(float, float)
-            カラーバーの位置
-        size: tuple(float, float)
-            カラーバーの大きさ
-        ----------
-        """
-        if fig is None:
-            raise Exception('fig is needed')
-        ax = fig.add_axes(anchor + size)
-        gradient = np.linspace(0, 1, self.cm.N)
-        gradient_array = np.vstack((gradient, gradient))
-        ticks = list()
-        labels = list()
-        ll = np.arange(self.tmin, self.tmax, self.tstep)
-        for t in ll:
-            ticks.append((t - self.tmin) / (self.tmax - self.tmin) * self.cm.N)
-            labels.append("{f:.0f}".format(f=t))
-        # カラーバーを描く
-        ax.imshow(gradient_array, aspect='auto', cmap=self.cm)
-        ax.yaxis.set_major_locator(mticker.NullLocator())
-        ax.yaxis.set_minor_locator(mticker.NullLocator())
-        ax.set_xticks(ticks)
-        ax.set_xticklabels(labels)
-        #ax.set_axis_off()
 
 
 def str_rep(inp):
@@ -364,8 +278,8 @@ def draw(lons,
     if opt_pref:
         add_pref(ax, linestyle='-', facecolor='none', linewidth=0.8)
     #
-    # temp2colクラスの初期化（気温の範囲はtmin、tmaxで設定、tstepで刻み幅）
-    t2c = temp2col(cmap='jet', tmin=tmin, tmax=tmax, tstep=tstep)
+    # val2colクラスの初期化（気温の範囲はtmin、tmaxで設定、tstepで刻み幅）
+    t2c = val2col(cmap='jet', tmin=tmin, tmax=tmax, tstep=tstep)
     # マーカーをプロット
     for xc, yc, dc in zip(lons, lats, d):
         if math.isnan(dc):
@@ -391,7 +305,8 @@ def draw(lons,
         f3 = barb_increments['flag']
         name = f'half: {f1:.0f}m/s, full: {f2:.0f}m/s, flag: {f3:.0f}m/s'
         print(name)
-        ax.text(lon_max - 1.2, lat_min + 0.1, name, ha='center', va='center')
+        ax.text(lon_max - 0.2, lat_min + 0.2, name, ha='right', va='center')
+        #ax.text(lon_max - 1.2, lat_min + 0.1, name, ha='center', va='center')
 
     # タイトル
     if title is not None:
@@ -478,13 +393,24 @@ def main(tinfo=None,
 
 
 if __name__ == '__main__':
-
+    # オプションの読み込み
+    args = parse_command(sys.argv, opt_wind=True)
+    # 開始・終了時刻
+    time_sta = pd.to_datetime(args.time_sta)
+    time_end = pd.to_datetime(args.time_end)
+    # 作図する領域
+    area = args.sta
+    # 出力ディレクトリ名
+    output_dir = args.output_dir
+    # 矢羽を描くかどうか
+    opt_barbs = args.wind
     # 出力ディレクトリ作成
     os_mkdir(output_dir)
 
     # 開始・終了時刻
-    time_sta = datetime(2021, 8, 10, 0, 0, 0)
-    time_end = datetime(2021, 8, 10, 23, 50, 0)
+    #time_sta = datetime(2021, 8, 10, 0, 0, 0)
+    #time_end = datetime(2021, 8, 10, 23, 50, 0)
+    # データの時間間隔
     time_step = timedelta(minutes=10)
     time = time_sta
     while True:
