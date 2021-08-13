@@ -39,6 +39,22 @@ get_jma_json_1time.py
 latest = "2021-05-02T14:30:00+09:00"
 
 
+# アメダスデータの自動取得
+
+get_jma_json_auto.pyでは、過去1日分のアメダスデータを取得する。既に取得している場合には再取得は行わない。
+
+crontabなどに登録して自動実行することを前提に作られており、プログラムの実行場所に依存しないように、出力ディレクトリ等は絶対パスで与える。
+
+output_dir = "データを出力するディレクトリの絶対パス"
+
+cronで毎時15分に実行する設定
+
+% crontab -eで編集
+
+15  * * * *  プログラムを置いたディレクトリの絶対パス/get_jma_json_auto.py > /dev/null 2>& 1
+(動作テストなど、ログを出したい場合には/dev/null以降を書かない)
+
+
 # 風と気温の作図（basemap）
 
 basemap_jma_temp+wind.py
@@ -71,11 +87,11 @@ time_end = datetime(2021, 7, 4, 21, 0, 0)
 time_step = timedelta(hours=3) # 3時間毎
 
 
-areaで作図する範囲を指定する
+staで作図エリアを指定する
 
 "Japan"  全国、"Rumoi" 北海道（北西部）、"Abashiri" 北海道（東部）、"Sapporo" 北海道（南西部）、"Akita" 東北地方（北部）、"Sendai" 東北地方（南部）、"Tokyo" 関東地方、"Kofu" 甲信地方、"Niigata" 北陸地方（東部）、"Kanazawa" 北陸地方（西部）、"Nagoya" 東海地方、"Osaka" 近畿地方、"Okayama" 中国地方、"Kochi" 四国地方、"Fukuoka" 九州地方（北部）、"Kagoshima" 九州地方（南部）、"Naze" 奄美地方、"Naha" 沖縄本島地方、"Daitojima"   大東島地方、"Miyakojima" 宮古・八重山地方
 
-他に、首都圏を拡大するTokyo_a、Tokyo_b、Chibaと静岡付近を拡大するShizuoka_aが指定可能
+他に、西日本を広域的に表示するWest、首都圏を拡大するTokyo_a、Tokyo_b、Chibaと静岡付近を拡大するShizuoka_aが指定可能
 
 カラーバーに設定する気温の範囲は下限：tmin、上限：tmax、ラベルの値を描く間隔はtstepで与える
 
@@ -100,15 +116,25 @@ cartopy_jma_rain3h.py、cartopy_jma_rain24h.py
 
 3時間積算降水量と24時間積算降水量を作図する
 
-開始・終了時刻を指定すると、その範囲内で作図。作図する時刻間隔はtime_stepで指定する
-
-areaで作図する範囲を指定する
+開始・終了時刻（time_sta、time_end）を指定すると、その範囲内で作図。staで作図エリアを指定する。
 
 作図：
 
-% python3 cartopy_jma_rain3h.py
+% python3 cartopy_jma_rain3h.py --time_sta 開始時刻 --time_end 終了時刻 --sta 作図エリア名
+--mlabel  False --output_dir 出力ディレクトリ名
 
-% python3 cartopy_jma_rain24h.py
+% python3 cartopy_jma_rain24h.py --time_sta 開始時刻 --time_end 終了時刻 --sta 作図エリア名
+--mlabel  False --output_dir 出力ディレクトリ名
+
+--mlabel True とすると、降水量のマーカーの隣に数字で降水量を表示する
+
+-output_dir で出力ディレクトリを変更できる
+
+作図する時間間隔を変更する場合には、time_stepを変える必要がある
+
+time_step = timedelta(hours=1) # 1時間毎（3時間積算降水量）
+
+time_step = timedelta(hours=3) # 3時間毎（24時間積算降水量）
 
 出力：
 
@@ -117,18 +143,23 @@ areaで作図する範囲を指定する
 地域_rain24h_時刻.png（cartopy_jma_rain24h.pyの場合）
 
 
-# アメダスデータの自動取得
+# 時系列データの作図
 
-get_jma_json_auto.pyでは、過去1日分のアメダスデータを取得する。既に取得している場合には再取得は行わない。
+map_tvar_station.py 
 
-crontabなどに登録して自動実行することを前提に作られており、プログラムの実行場所に依存しないように、出力ディレクトリ等は絶対パスで与える。
+開始・終了時刻（time_sta、time_end）を指定すると、その範囲内で作図。アメダス地点名（sta）で作図する地点名を指定。
 
-output_dir = "データを出力するディレクトリの絶対パス"
+作図：
 
-cronで毎時15分に実行する設定
+python3 map_tvar_station.py --time_sta 開始時刻 --time_end 終了時刻 --sta アメダス地点名
+--cumrain False --output_dir 出力ディレクトリ名
 
-% crontab -eで編集
+--cumrain True とすると1時間降水量ではなく積算降水量をプロットする
 
-15  * * * *  プログラムを置いたディレクトリの絶対パス/get_jma_json_auto.py > /dev/null 2>& 1
-(動作テストなど、ログを出したい場合には/dev/null以降を書かない)
+-output_dir で出力ディレクトリを変更できる
+
+作図する時間間隔を変更する場合には、time_stepを変える必要がある
+
+time_step = timedelta(hours=1) # 1時間毎
+
 
