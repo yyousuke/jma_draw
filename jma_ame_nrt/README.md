@@ -30,7 +30,7 @@ time_step = timedelta(minutes=10) # 10分毎
 時刻.csv（変換したcsvファイル）
 
 
-* 単独の時刻データを取得したい場合
+＊単独の時刻データを取得したい場合
 
 get_jma_json_1time.py
 
@@ -76,18 +76,22 @@ Tokyo_時刻.png（area="Tokyo"の場合）
 
 catopy_jma_temp+wind.py
 
-開始・終了時刻を指定すると、その範囲内で作図。次のように設定する
+開始・終了時刻（time_sta、time_end）を指定すると、その範囲内で作図。staで作図エリアを指定する。
 
-time_sta = datetime(2021, 6, 30, 0, 0, 0)
+作図：
 
-time_end = datetime(2021, 7, 4, 21, 0, 0)
+% python3 catopy_jma_temp+wind.py --time_sta 開始時刻 --time_end 終了時刻 --sta 作図エリア名
+--wind True --output_dir 出力ディレクトリ名
+
+wind は、矢羽を描くかどうか（TrueかFalseで指定）。--wind False とすると、矢羽は描かず気温のマーカーのみになる。
+
+--output_dir で出力ディレクトリを変更できる
 
 作図する時刻間隔はtime_stepで指定する
 
 time_step = timedelta(hours=3) # 3時間毎
 
-
-staで作図エリアを指定する
+staで指定可能なものは以下
 
 "Japan"  全国、"Rumoi" 北海道（北西部）、"Abashiri" 北海道（東部）、"Sapporo" 北海道（南西部）、"Akita" 東北地方（北部）、"Sendai" 東北地方（南部）、"Tokyo" 関東地方、"Kofu" 甲信地方、"Niigata" 北陸地方（東部）、"Kanazawa" 北陸地方（西部）、"Nagoya" 東海地方、"Osaka" 近畿地方、"Okayama" 中国地方、"Kochi" 四国地方、"Fukuoka" 九州地方（北部）、"Kagoshima" 九州地方（南部）、"Naze" 奄美地方、"Naha" 沖縄本島地方、"Daitojima"   大東島地方、"Miyakojima" 宮古・八重山地方
 
@@ -95,13 +99,7 @@ staで作図エリアを指定する
 
 カラーバーに設定する気温の範囲は下限：tmin、上限：tmax、ラベルの値を描く間隔はtstepで与える
 
-opt_barbs は、矢羽を描くかどうか（TrueかFalseで指定）
-
 矢羽を描く値は、短矢羽：half、長矢羽：full、旗矢羽：flagで設定する
-
-作図：
-
-% python3 catopy_jma_temp+wind.py
 
 出力：
 
@@ -128,7 +126,7 @@ cartopy_jma_rain3h.py、cartopy_jma_rain24h.py
 
 --mlabel True とすると、降水量のマーカーの隣に数字で降水量を表示する
 
--output_dir で出力ディレクトリを変更できる
+--output_dir で出力ディレクトリを変更できる
 
 作図する時間間隔を変更する場合には、time_stepを変える必要がある
 
@@ -156,7 +154,7 @@ python3 map_tvar_station.py --time_sta 開始時刻 --time_end 終了時刻 --st
 
 --cumrain True とすると1時間降水量ではなく積算降水量をプロットする
 
--output_dir で出力ディレクトリを変更できる
+--output_dir で出力ディレクトリを変更できる
 
 作図する時間間隔を変更する場合には、time_stepを変える必要がある
 
