@@ -140,6 +140,30 @@ time_step = timedelta(hours=3) # 3時間毎（24時間積算降水量）
 
 地域_rain24h_時刻.png（cartopy_jma_rain24h.pyの場合）
 
+#  積算降水量の作図（cartopy）
+
+cartopy_jma_cumrain.py
+
+1時間積算降水量から積算降水量を算出し作図する
+
+開始・終了時刻（time_sta、time_end）を指定すると、その範囲内で開始時刻からの積算降水量を作図。staで作図エリアを指定する。
+
+作図：
+
+% python3 cartopy_jma_cumrain.py --time_sta 開始時刻 --time_end 終了時刻 --sta 作図エリア名
+--mlabel  False --output_dir 出力ディレクトリ名
+
+--mlabel True とすると、降水量のマーカーの隣に数字で降水量を表示する
+
+--output_dir で出力ディレクトリを変更できる
+
+作図する時間間隔を変更する場合には、time_stepを変える必要がある
+
+time_step = timedelta(hours=1) # 1時間毎
+
+出力：
+
+地域_cumrain_時刻.png
 
 # 時系列データの作図
 
