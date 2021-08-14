@@ -131,6 +131,7 @@ def draw(index,
          output_filename="test.png",
          opt_barbs=False,
          opt_cumrain=False,
+         opt_addtemp=False,
          title=None):
     """matplotlibを用いて作図を行う
 
@@ -150,6 +151,8 @@ def draw(index,
         矢羽を描くかどうか
     opt_cumrain: bool
         降水量を積算降水量にするかどうか
+    opt_addtemp: bool
+        気温の折れ線グラフを描くかどうか
     title: str
         図のタイトル（Noneなら描かない）
     ----------
@@ -174,14 +177,15 @@ def draw(index,
     ax1.set_ylabel(ylab, fontsize=20)
     #
     # 気温
-    ax2 = ax1.twinx()  # 2つのプロットを関連付ける
-    ax2.set_ylim([math.floor(temp.min() - 1), math.ceil(temp.max()) + 2])
-    ax2.plot(index, temp, color='r', label='Temperature')
-    ax2.set_ylabel('Temperature (K)', fontsize=20)
+    if opt_addtemp:
+        ax2 = ax1.twinx()  # 2つのプロットを関連付ける
+        ax2.set_ylim([math.floor(temp.min() - 1), math.ceil(temp.max()) + 2])
+        ax2.plot(index, temp, color='r', label='Temperature')
+        ax2.set_ylabel('Temperature (K)', fontsize=20)
 
     # 矢羽を描く
     if opt_barbs:
-        ax.barbs(index,
+        ax1.barbs(index,
                  0.5,
                  u,
                  v,
@@ -193,8 +197,9 @@ def draw(index,
     # y軸の目盛り
     ax1.yaxis.set_major_locator(mticker.AutoLocator())
     ax1.yaxis.set_minor_locator(mticker.AutoMinorLocator())
-    ax2.yaxis.set_major_locator(mticker.AutoLocator())
-    ax2.yaxis.set_minor_locator(mticker.AutoMinorLocator())
+    if opt_addtemp:
+        ax2.yaxis.set_major_locator(mticker.AutoLocator())
+        ax2.yaxis.set_minor_locator(mticker.AutoMinorLocator())
     # x軸の目盛り
     ax1.xaxis.set_major_locator(mticker.AutoLocator())
     ax1.xaxis.set_minor_locator(mticker.AutoMinorLocator())
@@ -247,7 +252,7 @@ def main(tinfo=None, tinfof=None, sta=None, output_dir='.'):
 
 if __name__ == '__main__':
     # オプションの読み込み
-    args = parse_command(sys.argv, opt_cum=True)
+    args = parse_command(sys.argv, opt_cum=True, opt_temp=True)
     # 開始・終了時刻
     time_sta = pd.to_datetime(args.time_sta)
     time_end = pd.to_datetime(args.time_end)
@@ -257,7 +262,8 @@ if __name__ == '__main__':
     output_dir = args.output_dir
     # 降水量を積算降水量にするかどうか
     opt_cumrain = args.cumrain
-    #opt_cumrain = False
+    # 気温の折れ線グラフを描くかどうか
+    opt_addtemp = args.addtemp
 
     # 出力ディレクトリ作成
     os_mkdir(output_dir)
@@ -316,4 +322,5 @@ if __name__ == '__main__':
          vwnd,
          output_filename=output_filepath,
          opt_cumrain=opt_cumrain,
+         opt_addtemp=opt_addtemp,
          title=tinfot + " (" + sta + ")")

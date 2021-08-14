@@ -28,7 +28,10 @@ def os_mkdir(dir_name):
         os.mkdir(dir_name)
 
 
-def _construct_parser(opt_cum=False, opt_lab=False, opt_wind=False):
+def _construct_parser(opt_cum=False,
+                      opt_lab=False,
+                      opt_wind=False,
+                      opt_temp=False):
     """オプションの読み込み"""
     parser = argparse.ArgumentParser(description='Matplotlib cartopy, ')
 
@@ -46,19 +49,24 @@ def _construct_parser(opt_cum=False, opt_lab=False, opt_wind=False):
                         metavar='<sta>')
     if opt_cum:
         parser.add_argument('--cumrain',
-                            type=bool,
-                            help=('Option of cumulative rain (False/True)'),
-                            metavar='<cumrain>')
+                            type=str,
+                            help=('Option of cumulative rain'),
+                            metavar='<False/True>')
     if opt_lab:
         parser.add_argument('--mlabel',
-                            type=bool,
-                            help=('Option of marker label (False/True)'),
-                            metavar='<markerlabel>')
+                            type=str,
+                            help=('Option of marker label'),
+                            metavar='<False/True>')
     if opt_wind:
         parser.add_argument('--wind',
-                            type=bool,
-                            help=('Option of barbs (True/False)'),
-                            metavar='<wind>')
+                            type=str,
+                            help=('Option of barbs'),
+                            metavar='<True/False>')
+    if opt_temp:
+        parser.add_argument('--addtemp',
+                            type=str,
+                            help=('Option of temperature'),
+                            metavar='<True/False>')
 
     parser.add_argument('--output_dir',
                         type=str,
@@ -67,12 +75,20 @@ def _construct_parser(opt_cum=False, opt_lab=False, opt_wind=False):
 
     return parser
 
+def _str2bool(s):
+    """文字列からboolへの変換"""
+    return s.lower() in ["true", "t", "yes", "1"]
 
-def parse_command(args, opt_cum=False, opt_lab=False, opt_wind=False):
+def parse_command(args,
+                  opt_cum=False,
+                  opt_lab=False,
+                  opt_wind=False,
+                  opt_temp=False):
     """オプションの読み込み"""
     parser = _construct_parser(opt_cum=opt_cum,
                                opt_lab=opt_lab,
-                               opt_wind=opt_wind)
+                               opt_wind=opt_wind,
+                               opt_temp=opt_temp)
     parsed_args = parser.parse_args(args[1:])
     if parsed_args.output_dir is None:
         parsed_args.output_dir = output_dir_default
@@ -85,10 +101,22 @@ def parse_command(args, opt_cum=False, opt_lab=False, opt_wind=False):
     if opt_cum:
         if parsed_args.cumrain is None:
             parsed_args.cumrain = False
+        else:
+            parsed_args.cumrain = _str2bool(parsed_args.cumrain)
     if opt_lab:
         if parsed_args.mlabel is None:
             parsed_args.mlabel = False
+        else:
+            parsed_args.mlabel = _str2bool(parsed_args.mlabel)
     if opt_wind:
         if parsed_args.wind is None:
             parsed_args.wind = True
+        else:
+            parsed_args.wind = _str2bool(parsed_args.wind)
+    if opt_temp:
+        if parsed_args.addtemp is None:
+            parsed_args.addtemp = True
+        else:
+            parsed_args.addtemp = _str2bool(parsed_args.addtemp)
     return parsed_args
+
