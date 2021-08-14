@@ -167,7 +167,14 @@ def draw(index,
         prep = np.cumsum(prep)
     else:
         ylab = 'Precipitation (mm)'
-    ax1.set_ylim([0, math.ceil(prep.max() + math.fmod(prep.max(), 10)) + 1])
+    if prep.max() > 500.:
+        step = 100
+        offs = 10
+    else:
+        step = 10
+        offs = 1
+    ax1.set_ylim(
+        [0, math.ceil(prep.max() + math.fmod(prep.max(), step)) + offs])
     ax1.bar(index,
             prep,
             color='b',
@@ -182,17 +189,19 @@ def draw(index,
         ax2.set_ylim([math.floor(temp.min() - 1), math.ceil(temp.max()) + 2])
         ax2.plot(index, temp, color='r', label='Temperature')
         ax2.set_ylabel('Temperature (K)', fontsize=20)
+    else:
+        ax1.grid(color='0.7', linestyle=':') # グリッド線を描く
 
     # 矢羽を描く
     if opt_barbs:
         ax1.barbs(index,
-                 0.5,
-                 u,
-                 v,
-                 sizes=dict(emptybarb=0.0),
-                 length=4,
-                 linewidth=1,
-                 color='k')
+                  0.5,
+                  u,
+                  v,
+                  sizes=dict(emptybarb=0.0),
+                  length=4,
+                  linewidth=1,
+                  color='k')
 
     # y軸の目盛り
     ax1.yaxis.set_major_locator(mticker.AutoLocator())
