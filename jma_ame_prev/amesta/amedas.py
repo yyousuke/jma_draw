@@ -271,18 +271,53 @@ class AmedasStation():
         list_new = ["NaN",  "22.5",   "67.5",   "112.5",  "157.5",  "202.5",  "247.5", \
         "292.5",  "337.5",  "45.0", "135.0", "225.0", "315.0", "0.0", "90.0", "180.0", "270.0"]
         for i in range(17):
-            dat.iloc[:, 9] = dat.iloc[:, 9].str.replace(list_org[i], list_new[i])
+            dat.iloc[:, 9] = dat.iloc[:,
+                                      9].str.replace(list_org[i], list_new[i])
         # csvファイルへの書き出し
         dat.to_csv("tmp.csv")
-        col_names = ('ind', 'hour', 'ps', 'slp', 'prep', 'temp', 'dewt',
-                     'psw', 'RH', 'ws', 'wd', 'sun', 'sunf', 'snow', 'snowd', 
-                     'wday', 'ccover', 'vis')
-        dat = pd.read_csv("tmp.csv",
-                          skiprows=[0, 1],
-                          names=col_names)
+        col_names = ('ind', 'hour', 'ps', 'slp', 'prep', 'temp', 'dewt', 'psw',
+                     'RH', 'ws', 'wd', 'sun', 'sunf', 'snow', 'snowd', 'wday',
+                     'ccover', 'vis')
+        dat = pd.read_csv("tmp.csv", skiprows=[0, 1], names=col_names)
 
         dat2 = dat.drop('ind', axis=1)
         os.remove("tmp.csv")
         # 取り出したデータを返却
         return (dat2)
 
+    def retrieve_stat(self, month=None):
+        """統計データの取得（月最大24時間降水量）
+
+        Parameters:
+        ----------
+        input_filename: int
+            月（Noneの場合は通年）
+        ----------
+        Returns:
+        ----------
+        dict
+            歴代1位の値を地点名をキーとした辞書で返す
+        ----------
+	"""
+        url_top = "http://www.data.jma.go.jp/obd/stats/etrn/view/"
+        filename = "rank_s.php"
+        # 統計データ
+        if month is None:
+            url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + self.blockno + "&year=&month=&day=&view="
+        else:
+            url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + self.blockno + "&year=&month=" + str(
+                month) + "&day=&view=h0"
+        print(url)
+        # データの取り出し
+        dataset = pd.io.html.read_html(url)
+        dat = DataFrame(dataset[0], dtype=str)
+        #
+        pd.set_option('display.max_columns', 50)
+        #print(dat)
+        #print(dat.iloc[4, 1])
+        if month is None:
+            work = str(dat.iloc[4, 1])
+        else:
+            work = str(dat.iloc[3, 1])
+        work = work.replace(")", "").split("(")
+        return {self.sta: work}
