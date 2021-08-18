@@ -17,30 +17,8 @@ from utils import os_mkdir
 from utils import parse_command
 from utils import common
 
-# 出力ディレクトリ名
-#output_dir = "./map"
 
-# 地域の選択
-#area = "Japan"
-#area = "Tokyo_a"
-#area = "Tokyo_b"
-area = "Tokyo"
-#area = "Sapporo"
-
-# 気温の範囲
-tmin = 18.
-tmax = 38.
-tstep = 2.
-#
-#tmin = 10.
-#tmax = 40.
-#tstep = 3.
-
-# 矢羽を描くかどうか
-#opt_barbs = False
-#opt_barbs = True
-#
-# 矢羽を描く値
+# 矢羽を描く値（短矢羽：1m/s、長矢羽：5m/s、旗矢羽：10m/s）
 half = 1.
 full = 2.
 flag = 10.
@@ -213,11 +191,11 @@ def draw(lons,
             旗矢羽
     title: str
         図のタイトル
-    tmin: float
+    tmin: float or int
         カラーマップの下限
-    tmax: float
+    tmax: float or int
         カラーマップの上限
-    tstep: float
+    tstep: float or int
         カラーマップのラベルを描く間隔
     area: str
         図を描く領域
@@ -239,11 +217,15 @@ def draw(lons,
         ms = 1  # マーカーサイズ
         length = 4  # 矢羽のサイズ
         lw = 0.6  # 矢羽の幅
+        xloc = -0.2 # 矢羽の凡例を表示する位置(x)
+        yloc = 0.4  # 矢羽の凡例を表示する位置(x)
     else:
         ms = 6  # マーカーサイズ
         length = 6  # 矢羽のサイズ
         #length = 7  # 矢羽のサイズ
         lw = 1.5  # 矢羽の幅
+        xloc = -0.2 # 矢羽の凡例を表示する位置(x)
+        yloc = 0.2  # 矢羽の凡例を表示する位置(x)
     #
     # cartopy呼び出し
     ax = fig.add_axes((0.1, 0.3, 0.8, 0.6), projection=ccrs.PlateCarree())
@@ -305,8 +287,7 @@ def draw(lons,
         f3 = barb_increments['flag']
         name = f'half: {f1:.0f}m/s, full: {f2:.0f}m/s, flag: {f3:.0f}m/s'
         print(name)
-        ax.text(lon_max - 0.2, lat_min + 0.2, name, ha='right', va='center')
-        #ax.text(lon_max - 1.2, lat_min + 0.1, name, ha='center', va='center')
+        ax.text(lon_max + xloc, lat_min + yloc, name, ha='right', va='center')
 
     # タイトル
     if title is not None:
@@ -394,7 +375,7 @@ def main(tinfo=None,
 
 if __name__ == '__main__':
     # オプションの読み込み
-    args = parse_command(sys.argv, opt_wind=True)
+    args = parse_command(sys.argv, opt_wind=True, opt_trange=True)
     # 開始・終了時刻
     time_sta = pd.to_datetime(args.time_sta)
     time_end = pd.to_datetime(args.time_end)
@@ -403,13 +384,21 @@ if __name__ == '__main__':
     # 出力ディレクトリ名
     output_dir = args.output_dir
     # 矢羽を描くかどうか
-    opt_barbs = args.wind
+    opt_barbs = args.addwind
+    # 気温を描く範囲
+    try:
+        tr = args.temprange.split(',')
+        tmin = float(tr[0])
+        tmax = float(tr[1])
+        try:
+            tstep = float(tr[2])
+        except IndexError:
+            tstep = int((tmax - tmin) / 10.)
+    except:
+        raise ValueError("invalid temprange values")
     # 出力ディレクトリ作成
     os_mkdir(output_dir)
 
-    # 開始・終了時刻
-    #time_sta = datetime(2021, 8, 10, 0, 0, 0)
-    #time_end = datetime(2021, 8, 10, 23, 50, 0)
     # データの時間間隔
     time_step = timedelta(minutes=10)
     time = time_sta

@@ -81,9 +81,13 @@ catopy_jma_temp+wind.py
 作図：
 
 % python3 catopy_jma_temp+wind.py --time_sta 開始時刻 --time_end 終了時刻 --sta 作図エリア名
---wind True --output_dir 出力ディレクトリ名
+--addwind True --temprange 18.,38.,2. --output_dir 出力ディレクトリ名
 
-wind は、矢羽を描くかどうか（TrueかFalseで指定）。--wind False とすると、矢羽は描かず気温のマーカーのみになる。
+addwind は、矢羽を描くかどうか（TrueかFalseで指定）。--addwind False とすると、矢羽は描かず気温のマーカーのみになる。
+
+temprangeでカラーバーのラベルの範囲と目盛り線の間隔を指定できる。
+
+--temprange 18.,38.,2.では、最小18、最大38で、目盛り線の間隔は2毎（18.,38.のように目盛り線の間隔は省略可）
 
 --output_dir で出力ディレクトリを変更できる
 
