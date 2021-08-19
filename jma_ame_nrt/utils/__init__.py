@@ -28,22 +28,25 @@ def os_mkdir(dir_name):
         os.mkdir(dir_name)
 
 
-def _construct_parser(opt_cum=False,
+def _construct_parser(opt_time=True,
+                      opt_cum=False,
                       opt_lab=False,
+                      opt_rain=False,
                       opt_wind=False,
                       opt_temp=False,
                       opt_trange=False):
     """オプションの読み込み"""
     parser = argparse.ArgumentParser(description='Matplotlib cartopy, ')
 
-    parser.add_argument('--time_sta',
-                        type=str,
-                        help=('start time; yyyymmddhhMMss, or ISO date'),
-                        metavar='<timesta>')
-    parser.add_argument('--time_end',
-                        type=str,
-                        help=('end time; yyyymmddhhMMss, or ISO date'),
-                        metavar='<timeend>')
+    if opt_time:
+        parser.add_argument('--time_sta',
+                            type=str,
+                            help=('start time; yyyymmddhhMMss, or ISO date'),
+                            metavar='<timesta>')
+        parser.add_argument('--time_end',
+                            type=str,
+                            help=('end time; yyyymmddhhMMss, or ISO date'),
+                            metavar='<timeend>')
     parser.add_argument('--sta',
                         type=str,
                         help=('Station name; e.g. Tokyo'),
@@ -58,6 +61,11 @@ def _construct_parser(opt_cum=False,
                             type=str,
                             help=('Option to add marker label'),
                             metavar='<False/True>')
+    if opt_rain:
+        parser.add_argument('--addrain',
+                            type=str,
+                            help=('Option to add rain'),
+                            metavar='<True/False>')
     if opt_wind:
         parser.add_argument('--addwind',
                             type=str,
@@ -90,24 +98,29 @@ def _str2bool(s):
 
 
 def parse_command(args,
+                  opt_time=True,
                   opt_cum=False,
                   opt_lab=False,
+                  opt_rain=False,
                   opt_wind=False,
                   opt_temp=False,
                   opt_trange=False):
     """オプションの読み込み"""
-    parser = _construct_parser(opt_cum=opt_cum,
+    parser = _construct_parser(opt_time=opt_time,
+                               opt_cum=opt_cum,
                                opt_lab=opt_lab,
+                               opt_rain=opt_rain,
                                opt_wind=opt_wind,
                                opt_temp=opt_temp,
                                opt_trange=opt_trange)
     parsed_args = parser.parse_args(args[1:])
     if parsed_args.output_dir is None:
         parsed_args.output_dir = output_dir_default
-    if parsed_args.time_sta is None:
-        raise ValueError("time_sta is needed")
-    if parsed_args.time_end is None:
-        raise ValueError("time_end is needed")
+    if opt_time:
+        if parsed_args.time_sta is None:
+            raise ValueError("time_sta is needed")
+        if parsed_args.time_end is None:
+            raise ValueError("time_end is needed")
     if parsed_args.sta is None:
         raise ValueError("sta is needed")
     if opt_cum:
@@ -120,6 +133,11 @@ def parse_command(args,
             parsed_args.mlabel = False
         else:
             parsed_args.mlabel = _str2bool(parsed_args.mlabel)
+    if opt_rain:
+        if parsed_args.addrain is None:
+            parsed_args.addrain = True
+        else:
+            parsed_args.addrain = _str2bool(parsed_args.addrain)
     if opt_wind:
         if parsed_args.addwind is None:
             parsed_args.addwind = True

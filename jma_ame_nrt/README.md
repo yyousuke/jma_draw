@@ -189,3 +189,22 @@ python3 map_tvar_station.py --time_sta 開始時刻 --time_end 終了時刻 --st
 time_step = timedelta(hours=1) # 1時間毎
 
 
+# 直近のデータのみ取得し作図まで行う場合
+
+map_latest_cartopy.py
+
+アメダス地点名（sta）で作図する地点名を指定。
+
+python3 map_latest_cartopy.py --sta アメダス地点名
+--addwind True --temprange 18.,38.,2. --output_dir 出力ディレクトリ名
+
+addwind は、矢羽を描くかどうか（TrueかFalseで指定）。--addwind False とすると、矢羽は描かず気温のマーカーのみになる。
+
+temprangeでカラーバーのラベルの範囲と目盛り線の間隔を指定できる。
+
+--temprange 18.,38.,2.では、最小18、最大38で、目盛り線の間隔は2毎（18.,38.のように目盛り線の間隔は省略可）
+
+--output_dir で出力ディレクトリを変更できる
+
+取得する降水量データは、amedas.read_data(rainstep="1h")で変更する
+
