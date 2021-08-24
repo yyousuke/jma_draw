@@ -219,6 +219,12 @@ def draw(lons,
         lw = 0.6  # 矢羽の幅
         xloc = -0.2 # 矢羽の凡例を表示する位置(x)
         yloc = 0.4  # 矢羽の凡例を表示する位置(x)
+    elif area == "Tokyo_a" or area == "Tokyo_b" or area == "Chiba" or area == "Shizuoka_a":
+        ms = 6  # マーカーサイズ
+        length = 6  # 矢羽のサイズ
+        lw = 1.5  # 矢羽の幅
+        xloc = -0.1 # 矢羽の凡例を表示する位置(x)
+        yloc = 0.1  # 矢羽の凡例を表示する位置(x)
     else:
         ms = 6  # マーカーサイズ
         length = 6  # 矢羽のサイズ
