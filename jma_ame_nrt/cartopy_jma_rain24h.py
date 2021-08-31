@@ -170,7 +170,7 @@ def draw(lons,
     lats: ndarray
         緯度データ
     d: ndarray
-        気温データ
+        降水量データ
     u: ndarray
         東西風データ
     v: ndarray
