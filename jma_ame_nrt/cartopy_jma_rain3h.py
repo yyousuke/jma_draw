@@ -108,12 +108,25 @@ def read_data(input_filename):
         out_u), np.array(out_v), np.array(out_prep)
 
 
-# ax: cartopyを呼び出した際のaxes
 def add_pref(ax,
              linestyle='-',
              facecolor='none',
              edgecolor='k',
              linewidth=0.8):
+    """都道府県境を描く
+
+    Parameters:
+    ----------
+    ax: matplotlib Axes
+        cartopyを呼び出した際のaxes
+    facecolor: str
+        塗り潰す色
+    edgecolor: str
+        線の色
+    linewidth: str
+        線の幅
+    ----------
+    """
     # 10mの解像度のデータ
     shpfilename = shapereader.natural_earth(resolution='10m',
                                             category='cultural',
