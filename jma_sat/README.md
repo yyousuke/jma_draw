@@ -51,8 +51,10 @@ get_jma_jp.pyを編集
 ## 作図
 
 - 使用方法：
+
     % python3 get_jma_jp.py
 
 - 出力：
+
     ./日付/jp_(画像の種類)(時刻).png
 
