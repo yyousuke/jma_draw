@@ -1,22 +1,33 @@
 # jma_ame_prev
 
-map_jma.py
+## map_jma.py
 
-アメダス地点の設定(例：sta = "Tokyo"）
+指定したアメダス地点で時系列図を作成する
 
-作図する日付（例：date = "20210123"）
+- **アメダス地点の設定**：sta = "地点名"
 
-＊date = "yesterday"で前日のアメダスデータ作図を行う
+    例：sta = "Tokyo"
 
-矢羽を描くかどうかをplt_barbs
+- **作図する日付**：date = "日付"または"yesterday"
 
-barbs_kt = True でノット表示、Falseでm/s表示
+    例：date = "20210123"
 
-積雪量データを描くかどうかをopt_snow
+    前日のアメダスデータ作図を行う場合には、date = "yesterday"も指定可能
 
+- **矢羽を描くかどうか**：plt_barbs = True | False
 
- data_stat.py
+    Trueで矢羽を描く、Falseで描かない
 
- 歴代1位の値、日付を取得
+- **矢羽をノット表示にするかどうか**：barbs_kt = True | False
 
- アメダス地点リストをsta_listで与える
+    barbs_kt = True でノット表示、Falseでm/s表示
+
+- **積雪量データを描くかどうか**：opt_snow = True | False
+
+    opt_snow = Trueで描く、Falseで描かない
+
+## data_stat.py
+
+指定したアメダス地点で歴代1位の月最大24時間降水量の値、その日付を取得して表示
+
+- **表示したいアメダス地点リスト**：sta_list = ["地点名1", "地点名2" ]
