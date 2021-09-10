@@ -27,22 +27,22 @@ opt_latest = False  # 取得開始する時刻以降の全時刻の画像を使�
 # 取得開始する時刻（UTC）
 start_time_UTC = "20210827 22:00:00"
 
-opt_map = False # 地図を重ねるかどうか
+opt_map = False  # 地図を重ねるかどうか
 #opt_map = True # 地図を重ねるかどうか
 
 # 画像の種類
 #mtype = "l"  # 赤外
 #mtypef = "l"  # 赤外
-mtype = "tc" # 可視トゥルーカラー再現画像
-mtypef = "t" # 可視トゥルーカラー再現画像
+mtype = "tc"  # 可視トゥルーカラー再現画像
+mtypef = "t"  # 可視トゥルーカラー再現画像
 #mtype = "ct"  # 雲頂強調
 #mtypef = "m"  # 雲頂強調
 #
 # 取得するタイル座標の設定
-opt_jp = True # Trueではズームレベル6を取得
+opt_jp = True  # Trueではズームレベル6を取得
 #opt_jp = False # Falseではズームレベル3〜5を取得
 z = 6  # ズームレベル(全球：3〜5、日本域最大：6, 6ではopt_jp=Trueが必要）
-x = 55 # x方向の開始位置
+x = 55  # x方向の開始位置
 y = 26  # y方向
 nmax = 4  # タイルの数
 
@@ -428,6 +428,7 @@ def draw_sat(z=5,
     # ファイル書き出し
     if file_path is not None:
         plt.savefig(file_path, dpi=150, bbox_inches='tight')
+    plt.close()
 
 
 def draw_jp(z=5,
@@ -475,7 +476,12 @@ def draw_jp(z=5,
     # 地理院タイルの作成
     if opt_map:
         if not os.path.exists("map_tile.jpg"):
-            draw_tile(z=z, y=y, x=x, nmax=nmax, file_path="map_tile.jpg", mtype="blank")
+            draw_tile(z=z,
+                      y=y,
+                      x=x,
+                      nmax=nmax,
+                      file_path="map_tile.jpg",
+                      mtype="blank")
 
     # 衛星画像の作成
     draw_sat(z=z,
@@ -509,7 +515,7 @@ def draw_jp(z=5,
         src1 = cv2.bitwise_not(src1)  # 白黒反転
         src2 = pil2cv(src2)  # cv2のRGB値へ変換
         src2 = cv2.resize(src2, dsize=(src1.shape[0], src1.shape[1]))
-    
+
         # 画像をブレンド
         im = map_blend(src1, src2, 0.4, 1.0)
         #im = map_blend(src1, src2, 0.2, 0.8)
@@ -535,7 +541,7 @@ def draw_jp(z=5,
         plt.savefig(file_path, dpi=150, bbox_inches='tight')
     else:
         plt.show()
-
+    plt.close()
 
 
 if __name__ == '__main__':
