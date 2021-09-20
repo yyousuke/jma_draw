@@ -9,10 +9,34 @@ import urllib.request
 
 # データ取得部分
 class WprStation():
+    """WPRデータを取得し、ndarrayに変換する
+
+    Parameters:
+    ----------
+    station_no: int
+        ５桁の地点番号
+    ----------
+    """
     def __init__(self, station_no=None):
         self.station_no = str(station_no)
 
     def retrieve(self, time_list=None, opt_retrieve=True):
+        """WPRデータをダウンロードする
+        Parameters:
+        ----------
+        time_list: list(str, str, ...)
+            WPRデータ時刻のリスト
+        opt_retrieve: bool
+            データ取得を行うかどうか
+        ----------
+        Returns:
+        ----------
+        u, v, w, z: ndarray
+            東西風、南北風、鉛直速度、高度
+        zmax: int
+            高度データが入力された最大値
+        ----------
+        """
         url_top = "https://www.jma.go.jp/bosai/windprofiler/data/"
         file_name = self.station_no + ".json"
         # WPRデータの取得
@@ -57,18 +81,28 @@ class WprStation():
         return np.array(u), np.array(v), np.array(w), np.array(z), zmax
 
     def _divide(self, df):
+        """データを取り出す"""
         u = df.loc[:, 'u']
         v = df.loc[:, 'v']
         w = df.loc[:, 'w']
         z = df.loc[:, 'height']
         return u, v, w, z
 
+
 def wpr_time(opt_retrive=True):
+    """WPR時刻情報を取得し保存する
+
+    Parameters:
+    ----------
+    opt_retrive: bool
+        データが存在する場合にも取得する
+    ----------
+    """
     url_top = "https://www.jma.go.jp/bosai/windprofiler/data/"
     file_name = "times.json"
     if opt_retrieve and os.path.exists(file_name):
         os.remove(file_name)
-    # アメダス地点情報の取得
+    # WPR時刻情報の取得
     url = url_top + file_name
     if not os.path.exists(file_name):
         print(url)
@@ -81,9 +115,17 @@ def wpr_time(opt_retrive=True):
 
 
 def wpr_location():
+    """WPR地点情報を取得しデータを返却する
+    
+    Returns:
+    ----------
+    df: pandas.DataFrame
+        取り出したデータ
+    ----------
+    """
     url_top = "https://www.jma.go.jp/bosai/windprofiler/const/"
     file_name = "station.json"
-    # アメダス地点情報の取得
+    # WPR地点情報の取得
     url = url_top + file_name
     if not os.path.exists(file_name):
         print(url)
@@ -110,7 +152,7 @@ if __name__ == '__main__':
     print(station_list, len(station_list))
     #station_no = 47626 # 熊谷
     #station_no = 47656 # 静岡
-    station_no = 47636 # 名古屋
+    station_no = 47636  # 名古屋
 
     # WprStation Classの初期化
     wpr = WprStation(station_no=station_no)
@@ -124,12 +166,17 @@ if __name__ == '__main__':
     Series(np.array(time_list)).to_csv('time.csv', header=None)
 
     # 時間ー高度面のデータ作成
-    u = pd.DataFrame(u[:, 0:zmax], index=np.array(time_list), columns=z[0:zmax])
-    v = pd.DataFrame(v[:, 0:zmax], index=np.array(time_list), columns=z[0:zmax])
-    w = pd.DataFrame(w[:, 0:zmax], index=np.array(time_list), columns=z[0:zmax])
+    u = pd.DataFrame(u[:, 0:zmax],
+                     index=np.array(time_list),
+                     columns=z[0:zmax])
+    v = pd.DataFrame(v[:, 0:zmax],
+                     index=np.array(time_list),
+                     columns=z[0:zmax])
+    w = pd.DataFrame(w[:, 0:zmax],
+                     index=np.array(time_list),
+                     columns=z[0:zmax])
     #
     # 時間ー高度面のデータ書き出し
     u.to_csv('u_' + str(station_no) + ".csv")
     v.to_csv('v_' + str(station_no) + ".csv")
     w.to_csv('w_' + str(station_no) + ".csv")
-
