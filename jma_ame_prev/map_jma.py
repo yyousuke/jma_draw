@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import math
 from amesta import AmedasStation
+
 plt.rcParams['xtick.direction'] = 'in'  # x軸目盛線を内側
 plt.rcParams['xtick.major.width'] = 1.2  # x軸主目盛線の長さ
 plt.rcParams['ytick.direction'] = 'in'  # y軸目盛線を内側
@@ -58,6 +59,7 @@ day = tstr.day
 
 
 def plot(dataset):
+    """地点データの作図を行う"""
     # データの取り出し
     try:
         #index = dataset.hour
