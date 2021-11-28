@@ -111,7 +111,7 @@ class AmedasStation():
         return df.T
 
     def str_rep(self, inp):
-        """データの文字列を処理する"""
+        """データの文字列を処理し数値リストを返す"""
         return inp.replace("[", "").replace("]", "").replace(",", "").split()
 
     def read_data(self, input_filename=None, rainstep="1h"):

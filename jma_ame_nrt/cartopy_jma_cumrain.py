@@ -19,6 +19,7 @@ from utils import common
 
 
 def str_rep(inp):
+    """データの文字列を処理し数値リストを返す"""
     return inp.replace("[", "").replace("]", "").replace(",", "").split()
 
 

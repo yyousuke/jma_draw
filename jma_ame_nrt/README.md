@@ -53,7 +53,7 @@ crontabなどに登録して自動実行することを前提に作られてお�
 
 % crontab -eで編集
 
-15  * * * *  プログラムを置いたディレクトリの絶対パス/get_jma_json_auto.py > /dev/null 2>& 1
+    15  * * * *  プログラムを置いたディレクトリの絶対パス/get_jma_json_auto.py > /dev/null 2>& 1
 
 (動作テストなど、ログを出したい場合には > /dev/null以降を書かない)
 

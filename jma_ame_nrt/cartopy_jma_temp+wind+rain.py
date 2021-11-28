@@ -25,7 +25,7 @@ barb_increments = dict(half=half, full=full, flag=flag)
 
 
 def str_rep(inp):
-    """データの文字列を処理する"""
+    """データの文字列を処理し数値リストを返す"""
     return inp.replace("[", "").replace("]", "").replace(",", "").split()
 
 
