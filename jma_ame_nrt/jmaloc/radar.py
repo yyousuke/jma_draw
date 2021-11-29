@@ -3,6 +3,7 @@
 #  レーダー・ナウキャストの区分で作図範囲を返す
 #
 class MapRegion():
+    """レーダー・ナウキャストの区分で作図範囲を返す"""
     def __init__(self, sta):
         self.sta = sta
         self.lon_step = None

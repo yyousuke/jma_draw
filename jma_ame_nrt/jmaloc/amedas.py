@@ -12,17 +12,31 @@ import urllib.request
 
 # アメダス地点情報の取得
 class AmedasStation():
+    """アメダス地点情報の取得"""
     def __init__(self):
+        """アメダス地点データの取得と地点情報への変換"""
         # データ読み込み
         df = self._location()
-        # データ変換
+        # 数値化された経度、緯度情報に変換
         self.df = self._convert(df)
 
-    # アメダス地点の経度、緯度を返す
-    # kn_name：カタカナの地点名
-    # kj_name：漢字の地点名
-    # en_name：英語の地点名
     def get_staloc(self, kn_name=None, kj_name=None, en_name=None):
+        """アメダス地点の経度、緯度を返す
+        Parameters:
+        ----------
+        kn_name: str
+            カタカナの地点名
+        kj_name: str
+            漢字の地点名
+        en_name: str
+            英語の地点名
+        ----------
+        Returns:
+        ----------
+        float
+            経度、緯度
+        ----------
+        """
         if kn_name is None and kj_name is None and en_name is None:
             raise Exception('either kn_name or kj_name or en_name is needed')
         if kn_name is not None:
@@ -36,8 +50,8 @@ class AmedasStation():
         latitude = df_loc.iloc[0, 5]
         return float(longitude), float(latitude)
 
-    # データ読み込み
     def _location(self):
+        """AMeDAS地点の位置情報を取得し、pandas DataFrameで返却"""
         url_top = "https://www.jma.go.jp/bosai/amedas/const/"
         file_name = "amedastable.json"
         # アメダス地点情報の取得
@@ -52,12 +66,24 @@ class AmedasStation():
         return df.T
 
     def _str_rep(self, inp):
+        """データの文字列を処理し数値リストを返す"""
         inp = str(inp)
         return inp.replace("[", "").replace("]", "").replace(",", "").split()
 
     # 入力 df: DataFrame
     def _convert(self, df):
-        # アメダス地点データ作成
+        """アメダス地点データ変換
+        Parameters:
+        ----------
+        df: pandas DataFrame
+            アメダス地点情報
+        ----------
+        Returns:
+        ----------
+        df: pandas DataFrame
+            経度・緯度を数値に変換したアメダス地点情報
+        ----------
+        """
         lons = []
         lats = []
         alts = []

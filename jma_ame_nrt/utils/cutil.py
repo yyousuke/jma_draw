@@ -280,8 +280,15 @@ _no_green_data = {
 }
 
 
-# ColUtils: カラーユーティリティ
 class ColUtils():
+    """カラーユーティリティ
+    
+    Parameters:
+    ----------
+    cmap_name: str
+        カラーマップの名前
+    ----------
+    """
     def __init__(self, cmap_name=None):
         self.cmap_name = cmap_name
         if self.cmap_name == "s3pcpn_l":
@@ -298,6 +305,21 @@ class ColUtils():
             raise Exception("invalid cmap_name")
 
     def get_ctable(self, under=None, over=None):
+        """カラーマップを作成する
+        
+        Parameters:
+        ----------
+        under: str
+            下限を下回った場合の色
+        over: str
+            上限を上回った場合の色
+        ----------
+        Returns:
+        ----------
+        cmap
+            カラーマップ
+        ----------
+        """
         # カラーマップ作成
         cmap = LinearSegmentedColormap('colormap_name', self._segment_data)
         if under is not None:
