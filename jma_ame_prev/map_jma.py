@@ -228,7 +228,7 @@ def plot(dataset):
     ax3.xaxis.set_minor_locator(ticker.MultipleLocator(1))
     ax6.xaxis.set_major_locator(ticker.MultipleLocator(3))
     ax6.xaxis.set_minor_locator(ticker.MultipleLocator(1))
-    # x軸の目盛り線ラベル（下の大目盛線ラベルだけを残す）
+    # x軸の目盛り線ラベル（一番下の大目盛線ラベルだけを残す）
     ax1.xaxis.set_major_formatter(ticker.NullFormatter())
     ax1.xaxis.set_minor_formatter(ticker.NullFormatter())
     ax3.xaxis.set_major_formatter(ticker.NullFormatter())

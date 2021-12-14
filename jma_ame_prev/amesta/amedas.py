@@ -193,10 +193,11 @@ class AmedasStation():
         # 欠損値の置き換え
         num_cols = len(dat.iloc[0])
         for i in range(num_cols):
-            dat.iloc[:,
-                     i] = dat.iloc[:, i].str.replace("×", "NaN").str.replace(
-                         "--", "NaN").str.replace("///", "NaN").str.replace(
-                             "]", "").str.replace(")", "")
+            dat.iloc[:, i] = dat.iloc[:, i].str.replace(
+                "×", "NaN",
+                regex=False).str.replace("--", "NaN", regex=False).str.replace(
+                    "///", "NaN", regex=False).str.replace(
+                        "]", "", regex=False).str.replace(")", "", regex=False)
         # csvファイルへの書き出し
         dat.to_csv("tmp.csv")
         col_names = ('ind', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul',
@@ -227,10 +228,11 @@ class AmedasStation():
         # 欠損値の置き換え
         num_cols = len(dat.iloc[0])
         for i in range(num_cols - 5):
-            dat.iloc[:,
-                     i] = dat.iloc[:, i].str.replace("×", "NaN").str.replace(
-                         "--", "NaN").str.replace("///", "NaN").str.replace(
-                             "]", "").str.replace(")", "")
+            dat.iloc[:, i] = dat.iloc[:, i].str.replace(
+                "×", "NaN",
+                regex=False).str.replace("--", "NaN", regex=False).str.replace(
+                    "///", "NaN", regex=False).str.replace(
+                        "]", "", regex=False).str.replace(")", "", regex=False)
         #print(dat)
         # csvファイルへの書き出し
         dat.to_csv("tmp.csv")
@@ -261,10 +263,11 @@ class AmedasStation():
         # 欠損値の置き換え
         num_cols = len(dat.iloc[0])
         for i in range(num_cols - 1):
-            dat.iloc[:,
-                     i] = dat.iloc[:, i].str.replace("×", "NaN").str.replace(
-                         "--", "NaN").str.replace("///", "NaN").str.replace(
-                             "]", "").str.replace(")", "")
+            dat.iloc[:, i] = dat.iloc[:, i].str.replace(
+                "×", "NaN",
+                regex=False).str.replace("--", "NaN", regex=False).str.replace(
+                    "///", "NaN", regex=False).str.replace(
+                        "]", "", regex=False).str.replace(")", "", regex=False)
         # 風向の置き換え
         list_org = ["静穏", "北北東", "東北東", "東南東", "南南東", "南南西", "西南西", \
         "西北西", "北北西", "北東", "南東",  "南西",  "北西",  "北",  "東",   "南",    "西"]
