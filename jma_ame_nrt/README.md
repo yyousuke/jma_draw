@@ -83,11 +83,19 @@ catopy_jma_temp+wind.pyでは、風を矢羽、気温をマーカーでプロッ
 
 catopy_jma_temp+wind+rain.pyでは、風を矢羽、気温をマーカー、降水量をテキストでプロットする
 
-- 使用方法：
+- 使用方法（気温と風）：
 
     % python3 catopy_jma_temp+wind.py --time_sta 開始時刻 --time_end 終了時刻 --sta 作図エリア名
 
     --addwind True --temprange 18.,38.,2. --output_dir 出力ディレクトリ名
+
+- 使用方法（気温のみ）：
+
+    % python3 catopy_jma_temp+wind.py --time_sta 開始時刻 --time_end 終了時刻 --sta 作図エリア名
+
+    --addwind False --mlabel True --temprange 18.,38.,2. --output_dir 出力ディレクトリ名
+
+- 使用方法（気温と風、降水量）：
 
     % python3 catopy_jma_temp+wind+rain.py --time_sta 開始時刻 --time_end 終了時刻 --sta 作図エリア名
 
@@ -115,11 +123,13 @@ catopy_jma_temp+wind+rain.pyでは、風を矢羽、気温をマーカー、降�
 
 - **--addwind**：矢羽を描くかどうか（TrueかFalseで指定）。--addwind False とすると、矢羽は描かず気温のマーカーのみになる
 
-- **--addrain**：降水量をテキスト描くかどうか（TrueかFalseで指定）。--addrain False とするとプロットされない。catopy_jma_temp+wind+rain.pyのみのオプション
+- **--mlabel**：気温のマーカーの横に気温をテキストで描くかどうか（TrueかFalseで指定）。catopy_jma_temp+wind.pyのみのオプション
+
+- **--addrain**：気温のマーカーの横に降水量をテキストで描くかどうか（TrueかFalseで指定）。--addrain False とするとプロットされない。catopy_jma_temp+wind+rain.pyのみのオプション
 
 - **--temprange**：カラーバーに設定する気温の範囲（下限,上限,間隔）。下限と上限はカラーバーのラベルの範囲を、間隔は目盛り線ラベルの値を描く間隔を指定する
 
-    --temprange 18.,38.,2.では、下限18、上限38で、間隔は2毎（18.,38.のように目盛り線の間隔は省略可）
+    --temprange 18.,38.,2.では、下限18、上限38で、間隔は2毎（18.,38.のように目盛り線の間隔は省略可）。最初がマイナスの場合は、/-16,16,2/のように囲う（<>, (), {}, |, /が使用可）
 
 - **--output_dir**：出力ディレクトリを変更できる
 
@@ -268,7 +278,7 @@ map_latest_cartopy.pyでは、直近のアメダスデータを取得し、指�
 
 - **--temprange**：カラーバーのラベルの範囲と目盛り線の間隔を指定できる
 
-    --temprange 18.,38.,2.では、最小18、最大38で、目盛り線の間隔は2毎（18.,38.のように目盛り線の間隔は省略可）
+    --temprange 18.,38.,2.では、最小18、最大38で、目盛り線の間隔は2毎（18.,38.のように目盛り線の間隔は省略可）。最初がマイナスの場合は、/-16,16,2/のように囲う（<>, (), {}, |, /が使用可）
 
 - **--output_dir**：出力ディレクトリを変更できる
 

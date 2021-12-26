@@ -96,6 +96,10 @@ def _str2bool(s):
     """文字列からboolへの変換"""
     return s.lower() in ["true", "t", "yes", "1"]
 
+def _strdel(s):
+    """文字列の先頭と最後の分離記号を取り除く"""
+    return s.strip('<>|/(){} \n \t')
+
 
 def parse_command(args,
                   opt_time=True,
@@ -151,4 +155,6 @@ def parse_command(args,
     if opt_trange:
         if parsed_args.temprange is None:
             parsed_args.temprange = "18.,38.,2."
+        else:
+            parsed_args.temprange = _strdel(parsed_args.temprange)
     return parsed_args

@@ -27,7 +27,7 @@ barb_increments = dict(half=half, full=full, flag=flag)
 
 
 def str_rep(inp):
-    """データの文字列を処理し数値リストを返す"""
+    """データの文字列を処理する"""
     return inp.replace("[", "").replace("]", "").replace(",", "").split()
 
 
@@ -151,6 +151,7 @@ def draw(lons,
          output_filename="test.png",
          opt_mapcolor=False,
          opt_pref=False,
+         opt_markerlabel=False,
          opt_barbs=False,
          barb_increments=dict(half=5., full=10., flag=50.),
          title=None,
@@ -179,6 +180,8 @@ def draw(lons,
         False: 海岸線を描く
     opt_pref: bool
         都道府県境を描くかどうか
+    opt_markerlabel: bool
+        マーカーの隣に降水量を表示するかどうか
     opt_barbs: bool
         矢羽を描くかどうか
     barb_increment: dict
@@ -268,13 +271,17 @@ def draw(lons,
     #
     # val2colクラスの初期化（気温の範囲はtmin、tmaxで設定、tstepで刻み幅）
     t2c = val2col(cmap='jet', tmin=tmin, tmax=tmax, tstep=tstep)
-    # マーカーをプロット
+    # マーカーとテキストをプロット
     for xc, yc, dc in zip(lons, lats, d):
         if math.isnan(dc):
             print("Warn ", xc, yc, dc)
         else:
             c = t2c.conv(dc)
             ax.plot(xc, yc, marker='o', color=c, markersize=ms)
+            if opt_markerlabel:
+                if xc >= lon_min and xc <= lon_max and yc >= lat_min and yc <= lat_max:
+                    ax.text(xc + 0.03, yc - 0.02, str(dc), color=c, fontsize=8)
+
 
     # 矢羽を描く
     if opt_barbs:
@@ -311,6 +318,7 @@ def draw(lons,
 def main(tinfo=None,
          tinfof=None,
          area="Japan",
+         opt_markerlabel=False,
          opt_barbs=False,
          barb_increments=dict(half=5., full=10., flag=50.),
          tmin=None,
@@ -329,6 +337,8 @@ def main(tinfo=None,
         (形式：20210312161000)
     area: str
         図を描く領域
+    opt_markerlabel: bool
+        地点のプロットの横に降水量を表示するかどうか
     opt_barbs: bool
         矢羽を描くかどうか
     barb_increment: dict
@@ -370,6 +380,7 @@ def main(tinfo=None,
              output_filename,
              opt_mapcolor=True,
              opt_pref=True,
+             opt_markerlabel=opt_markerlabel,
              opt_barbs=opt_barbs,
              barb_increments=barb_increments,
              tmin=tmin,
@@ -381,7 +392,7 @@ def main(tinfo=None,
 
 if __name__ == '__main__':
     # オプションの読み込み
-    args = parse_command(sys.argv, opt_wind=True, opt_trange=True)
+    args = parse_command(sys.argv, opt_wind=True, opt_trange=True, opt_lab=True)
     # 開始・終了時刻
     time_sta = pd.to_datetime(args.time_sta)
     time_end = pd.to_datetime(args.time_end)
@@ -391,6 +402,8 @@ if __name__ == '__main__':
     output_dir = args.output_dir
     # 矢羽を描くかどうか
     opt_barbs = args.addwind
+    # 気温を数字で表示するかどうか
+    opt_markerlabel = args.mlabel
     # 気温を描く範囲
     try:
         tr = args.temprange.split(',')
@@ -416,6 +429,7 @@ if __name__ == '__main__':
             main(tinfo,
                  tinfof,
                  area=area,
+                 opt_markerlabel=opt_markerlabel,
                  opt_barbs=opt_barbs,
                  barb_increments=barb_increments,
                  tmin=tmin,
