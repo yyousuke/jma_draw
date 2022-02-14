@@ -39,6 +39,7 @@ class AmedasStation():
         出力ディレクトリのパス
     ----------
     """
+
     def __init__(self, latest=None, outdir_path="."):
         url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt"
         if latest is None:
@@ -72,8 +73,8 @@ class AmedasStation():
         try:
             with open(os.path.join(outdir_path, file_name), 'rt') as fin:
                 data = fin.read()
-        except:
-            raise IOError("in " + os.path.join(outdir_path, file_name))
+        except OSError as e:
+            raise OSError(e)
         df = DataFrame(json.loads(data)).T
         # アメダス地点情報の取得
         df_location = self.location()
@@ -103,8 +104,8 @@ class AmedasStation():
         try:
             with open(os.path.join(outdir_path, file_name), 'rt') as fin:
                 data = fin.read()
-        except:
-            raise IOError("in " + os.path.join(outdir_path, file_name))
+        except OSError as e:
+            raise OSError(e)
         df = DataFrame(json.loads(data))
         #print(df)
         # 取り出したデータを返却
@@ -140,7 +141,8 @@ class AmedasStation():
         if input_filename is not None:
             df = pd.read_csv(input_filename)
         else:
-            df = pd.read_csv(os.path.join(self.outdir_path, self.latest_time + ".csv"))
+            df = pd.read_csv(
+                os.path.join(self.outdir_path, self.latest_time + ".csv"))
             #df = self.df
         # 変数に分ける
         lon_in = df.loc[:, "lon"]

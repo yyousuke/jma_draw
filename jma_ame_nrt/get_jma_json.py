@@ -15,6 +15,7 @@ opt_latest = False
 
 # データ取得部分
 class AmedasStation():
+
     def __init__(self, latest=None):
         url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt"
         if latest is None:
@@ -32,8 +33,11 @@ class AmedasStation():
         url = url_top + file_name
         print(url)
         urllib.request.urlretrieve(url, file_name)
-        with open(file_name, 'rt') as fin:
-            data = fin.read()
+        try:
+            with open(file_name, 'rt') as fin:
+                data = fin.read()
+        except OSError as e:
+            raise OSError(e)
         df = DataFrame(json.loads(data)).T
         # アメダス地点情報の取得
         df_location = self.location()
@@ -57,8 +61,11 @@ class AmedasStation():
         if not os.path.exists(file_name):
             print(url)
             urllib.request.urlretrieve(url, file_name)
-        with open(file_name, 'rt') as fin:
-            data = fin.read()
+        try:
+            with open(file_name, 'rt') as fin:
+                data = fin.read()
+        except OSError as e:
+            raise OSError(e)
         df = DataFrame(json.loads(data))
         #print(df)
         # 取り出したデータを返却

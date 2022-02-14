@@ -3,7 +3,7 @@
 # 最近のアメダスデータを自動取得する（cronなどで定時取得することを想定）
 # デフォルトでは1日前から最新のものまで10分毎のデータを取得する設定
 # （既に取得されているものは再取得しない）
-# 
+#
 # cronで毎時15分に実行する設定
 # % crontab -e
 # 15  * * * *  /Users/path_to_program/get_jma_json_auto.py > /dev/null 2>& 1
@@ -19,6 +19,7 @@ from datetime import timedelta
 
 # 出力するディレクトリ
 output_dir = "/Users/path_to_output"
+
 #output_dir = "."
 
 
@@ -33,6 +34,7 @@ def os_mkdir(dir_name):
 
 # データ取得部分
 class AmedasStation():
+
     def __init__(self, latest=None, outdir_path="."):
         url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt"
         if latest is None:
@@ -65,8 +67,8 @@ class AmedasStation():
         try:
             with open(os.path.join(outdir_path, file_name), 'rt') as fin:
                 data = fin.read()
-        except:
-            raise IOError("in " + os.path.join(outdir_path, file_name))
+        except OSError as e:
+            raise OSError(e)
         df = DataFrame(json.loads(data)).T
         # アメダス地点情報の取得
         df_location = self.location()
@@ -96,8 +98,8 @@ class AmedasStation():
         try:
             with open(os.path.join(outdir_path, file_name), 'rt') as fin:
                 data = fin.read()
-        except:
-            raise IOError("in " + os.path.join(outdir_path, file_name))
+        except OSError as e:
+            raise OSError(e)
         df = DataFrame(json.loads(data))
         #print(df)
         # 取り出したデータを返却
