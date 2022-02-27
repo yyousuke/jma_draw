@@ -4,7 +4,8 @@
 #
 from pandas import Series, DataFrame
 import pandas as pd
-import os
+from io import StringIO
+pd.set_option('display.max_columns', 50)
 
 
 class AmedasStation():
@@ -184,8 +185,9 @@ class AmedasStation():
             vno = "p5"
             uni = "cm"
         # monthly amedas
-        url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + self.blockno + "&year=&month=&day=&view=" + vno
-        print(url)
+        url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + \
+              self.blockno + "&year=&month=&day=&view=" + vno
+        #print(url)
         # データの取り出し
         dataset = pd.io.html.read_html(url)
         dat = DataFrame(dataset[0], dtype=str)
@@ -199,33 +201,29 @@ class AmedasStation():
                     .str.replace("///", "NaN", regex=False) \
                     .str.replace("]", "", regex=False) \
                     .str.replace(")", "", regex=False)
-        # csvファイルへの書き出し
-        dat.to_csv("tmp.csv")
-        col_names = ('ind', 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul',
-                     'aug', 'sep', 'oct', 'nov', 'dec', 'ann')
-        dat = pd.read_csv("tmp.csv",
+        # csv形式で書き出し再読み込み
+        csv = dat.to_csv(index=False)
+        col_names = ('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug',
+                     'sep', 'oct', 'nov', 'dec', 'ann')
+        dat = pd.read_csv(StringIO(csv),
                           skiprows=[0, 1],
                           names=col_names,
                           index_col=[1])
-        dat2 = dat.drop('ind', axis=1)
-        os.remove("tmp.csv")
-        #
         # 取り出したデータを返却
-        return (dat2)
+        return (dat)
 
     def retrieve_day(self, year, month):
         url_top = "http://www.data.jma.go.jp/obd/stats/etrn/view/"
         filename = "daily_s1.php"
         # daily amedas
-        url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + self.blockno + "&year=" + str(
-            year) + "&month=" + str(month) + "&day=&view="
-        print(url)
+        url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + \
+            self.blockno + "&year=" + str(year) + \
+            "&month=" + str(month) + "&day=&view="
+        #print(url)
         # データの取り出し
         dataset = pd.io.html.read_html(url)
         dat = DataFrame(dataset[0], dtype=str)
-        #dat = DataFrame(dataset[0])
         #
-        pd.set_option('display.max_columns', 50)
         # 欠損値の置き換え
         num_cols = len(dat.iloc[0])
         for i in range(num_cols - 5):
@@ -235,33 +233,28 @@ class AmedasStation():
                     .str.replace("///", "NaN", regex=False) \
                     .str.replace("]", "", regex=False) \
                     .str.replace(")", "", regex=False)
-        #print(dat)
-        # csvファイルへの書き出し
-        dat.to_csv("tmp.csv")
-        col_names = ('ind', 'day', 'ps', 'slp', 'prep', 'pmax1h', 'pmax10m',
-                     'tave', 'tmax', 'tmin', 'RH', 'RHmin', 'wind', 'wmax',
-                     'wd', 'wsmax', 'wsd', 'sun', 'snow', 'snowd', 'wday',
-                     'wnight')
-        dat = pd.read_csv("tmp.csv",
+        # csv形式で書き出し再読み込み
+        csv = dat.to_csv(index=False)
+        col_names = ('day', 'ps', 'slp', 'prep', 'pmax1h', 'pmax10m', 'tave', 
+                     'tmax', 'tmin', 'RH', 'RHmin', 'wind', 'wmax', 'wd', 
+                     'wsmax', 'wsd', 'sun', 'snow', 'snowd', 'wday', 'wnight')
+        dat = pd.read_csv(StringIO(csv),
                           skiprows=[0, 1, 2, 3],
                           names=col_names,
                           index_col=[1])
-        dat2 = dat.drop('ind', axis=1)
-        os.remove("tmp.csv")
-        #
         # 取り出したデータを返却
-        return (dat2)
+        return (dat)
 
     def retrieve_hour(self, year, month, day):
         url_top = "https://www.data.jma.go.jp/obd/stats/etrn/view/"
         filename = "hourly_s1.php"
         # hourly amedas
-        url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + self.blockno + "&year=" + str(
-            year) + "&month=" + str(month) + "&day=" + str(day) + "&view="
+        url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + \
+              self.blockno + "&year=" + str(year) + "&month=" + str(month) + \
+              "&day=" + str(day) + "&view="
 
         dataset = pd.io.html.read_html(url)
         dat = DataFrame(dataset[0], dtype=str)
-        pd.set_option('display.max_columns', 50)
         # 欠損値の置き換え
         num_cols = len(dat.iloc[0])
         for i in range(num_cols - 1):
@@ -279,17 +272,14 @@ class AmedasStation():
         for i in range(17):
             dat.iloc[:, 9] = dat.iloc[:,
                                       9].str.replace(list_org[i], list_new[i])
-        # csvファイルへの書き出し
-        dat.to_csv("tmp.csv")
-        col_names = ('ind', 'hour', 'ps', 'slp', 'prep', 'temp', 'dewt', 'psw',
-                     'RH', 'ws', 'wd', 'sun', 'sunf', 'snow', 'snowd', 'wday',
+        # csv形式で書き出し再読み込み
+        csv = dat.to_csv(index=False)
+        col_names = ('hour', 'ps', 'slp', 'prep', 'temp', 'dewt', 'psw', 'RH', 
+                     'ws', 'wd', 'sun', 'sunf', 'snow', 'snowd', 'wday',
                      'ccover', 'vis')
-        dat = pd.read_csv("tmp.csv", skiprows=[0, 1], names=col_names)
-
-        dat2 = dat.drop('ind', axis=1)
-        os.remove("tmp.csv")
+        dat = pd.read_csv(StringIO(csv), skiprows=[0, 1], names=col_names)
         # 取り出したデータを返却
-        return (dat2)
+        return (dat)
 
     def retrieve_stat(self, month=None):
         """統計データの取得（月最大24時間降水量）
@@ -309,18 +299,17 @@ class AmedasStation():
         filename = "rank_s.php"
         # 統計データ
         if month is None:
-            url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + self.blockno + "&year=&month=&day=&view="
+            url = url_top + filename + "?prec_no=" + self.precno + \
+                  "&block_no=" + self.blockno + "&year=&month=&day=&view="
         else:
-            url = url_top + filename + "?prec_no=" + self.precno + "&block_no=" + self.blockno + "&year=&month=" + str(
-                month) + "&day=&view=h0"
-        print(url)
+            url = url_top + filename + "?prec_no=" + self.precno + \
+                  "&block_no=" + self.blockno + "&year=&month=" + \
+                  str(month) + "&day=&view=h0"
+        #print(url)
         # データの取り出し
         dataset = pd.io.html.read_html(url)
         dat = DataFrame(dataset[0], dtype=str)
         #
-        pd.set_option('display.max_columns', 50)
-        #print(dat)
-        #print(dat.iloc[4, 1])
         if month is None:
             work = str(dat.iloc[4, 1])
         else:
