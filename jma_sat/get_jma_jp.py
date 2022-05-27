@@ -15,7 +15,6 @@ import cv2
 import json
 import numpy as np
 import pandas as pd
-import itertools
 import urllib.request
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -25,26 +24,34 @@ import matplotlib.ticker as ticker
 opt_latest = False  # 取得開始する時刻以降の全時刻の画像を使用する場合（注意）
 #opt_latest = True  # 最新の画像だけを取得する場合
 # 取得開始する時刻（UTC）
-start_time_UTC = "20210827 22:00:00"
+start_time_UTC = "20220525 15:00:00"
 
 opt_map = False  # 地図を重ねるかどうか
-#opt_map = True # 地図を重ねるかどうか
+# opt_map = True # 地図を重ねるかどうか
 
 # 画像の種類
-#mtype = "l"  # 赤外
-#mtypef = "l"  # 赤外
+# mtype = "l"  # 赤外
+# mtypef = "l"  # 赤外
 mtype = "tc"  # 可視トゥルーカラー再現画像
 mtypef = "t"  # 可視トゥルーカラー再現画像
-#mtype = "ct"  # 雲頂強調
-#mtypef = "m"  # 雲頂強調
+# mtype = "ct"  # 雲頂強調
+# mtypef = "m"  # 雲頂強調
+# mtype = "v"  # 水蒸気
+# mtypef = "v"  # 水蒸気
 #
-# 取得するタイル座標の設定
+# 取得するタイル座標の設定（ズームレベル6の例）
 opt_jp = True  # Trueではズームレベル6を取得
-#opt_jp = False # Falseではズームレベル3〜5を取得
 z = 6  # ズームレベル(全球：3〜5、日本域最大：6, 6ではopt_jp=Trueが必要）
 x = 55  # x方向の開始位置
 y = 26  # y方向
 nmax = 4  # タイルの数
+#
+# 取得するタイル座標の設定（ズームレベル5の例）
+# opt_jp = False # Falseではズームレベル3〜5を取得
+# z = 5  # ズームレベル(全球：3〜5、日本域最大：6, 6ではopt_jp=Trueが必要）
+# x = 27  # x方向の開始位置
+# y = 11  # y方向
+# nmax = 9  # タイルの数
 
 # 画像ファイルを保存するかどうか
 opt_filesave = True  # ファイルに保存（opt_latest = Falseの場合はデータサイズに注意）
@@ -102,7 +109,8 @@ def get_jpg(basetime=None,
             validtime=None,
             mtype="l",
             tile="3/7/3",
-            opt_jp=False):
+            opt_jp=False,
+            cnt=2):
     """ひまわり画像の取得
 
     Parameters:
@@ -119,6 +127,8 @@ def get_jpg(basetime=None,
        （確認ページ、https://maps.gsi.go.jp/development/tileCoordCheck.html）
     opt_jp: bool
         日本付近の最高解像度データを取得するかどうか
+    cnt: int
+        再取得カウント
     ----------
     Returns:
     ----------
@@ -128,6 +138,8 @@ def get_jpg(basetime=None,
     """
     if basetime is None or validtime is None:
         raise ValueError("basetime and validtime are needed")
+    if cnt <= 0:  # 0の場合は終了
+        raise RuntimeError('maximum count')
     #
     urlbase = "https://www.jma.go.jp/bosai/himawari/data/satimg/"
     if mtype == "l":  # 赤外画像
@@ -141,14 +153,23 @@ def get_jpg(basetime=None,
     elif mtype == "ct":  # 雲頂強調画像
         band_prod = "SND/ETC"
     else:
-        raise ValueError("Invalid mtyp")
+        raise ValueError("Invalid mtype")
     # URL
     if opt_jp:  # 日本付近のデータ
         url = urlbase + basetime + "/jp/" + validtime + "/" + band_prod + "/" + tile + ".jpg"
     else:  # 全球画像データ
         url = urlbase + basetime + "/fd/" + validtime + "/" + band_prod + "/" + tile + ".jpg"
     print(url)
-    im = Image.open(urllib.request.urlopen(url))
+    try:
+        im = Image.open(urllib.request.urlopen(url))
+    except:
+        time.sleep(10.0)  # 10秒間待つ
+        get_jpg(basetime=None,
+                validtime=None,
+                mtype="l",
+                tile="3/7/3",
+                opt_jp=False,
+                cnt=cnt - 1)  # cntを減らして再帰
     return im
 
 
@@ -172,10 +193,10 @@ def get_tile(tile="3/7/3", mtype="std"):
     """
 
     urlbase = "https://cyberjapandata.gsi.go.jp/xyz/"
-    #"https://cyberjapandata.gsi.go.jp/xyz/std/6/57/23.png"
-    if basetime is None or validtime is None:
-        raise ValueError("Invalid mtyp")
-        return None
+    # ex. "https://cyberjapandata.gsi.go.jp/xyz/std/6/57/23.png"
+    if tile is None or mtype is None:
+        raise ValueError("Invalid tile/mtype")
+        #return None
     # URL
     url = urlbase + mtype + "/" + tile + ".png"
     print(url)
@@ -511,14 +532,14 @@ def draw_jp(z=5,
         src1 = cv2.imread("map_tile.jpg")
         src2 = cv2.imread("map_sat.jpg")
         # 画像変換
-        #src1 = pil2cv(src1) #
+        # src1 = pil2cv(src1) #
         src1 = cv2.bitwise_not(src1)  # 白黒反転
         src2 = pil2cv(src2)  # cv2のRGB値へ変換
         src2 = cv2.resize(src2, dsize=(src1.shape[0], src1.shape[1]))
 
         # 画像をブレンド
         im = map_blend(src1, src2, 0.4, 1.0)
-        #im = map_blend(src1, src2, 0.2, 0.8)
+        # im = map_blend(src1, src2, 0.2, 0.8)
     else:
         src = cv2.imread("map_sat.jpg")
         im = pil2cv(src)  # cv2のRGB値へ変換
