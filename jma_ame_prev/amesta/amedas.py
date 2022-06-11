@@ -5,11 +5,21 @@
 from pandas import Series, DataFrame
 import pandas as pd
 from io import StringIO
+
 pd.set_option('display.max_columns', 50)
 
 
 class AmedasStation():
+    """アメダス地点情報の取得"""
+
     def __init__(self, sta):
+        """アメダス地点情報を返す
+        Parameters:
+        ----------
+        sta: str
+           アメダス地点名
+        ----------
+        """
         self.sta = sta
         self.stacode = None
         self.areacode = None
@@ -138,6 +148,19 @@ class AmedasStation():
             self.blockno = "47827"
 
     def retrieve_mon(self, var):
+        """月平均データの取得
+
+        Parameters:
+        ----------
+        var: str
+           変数名
+        ----------
+        Returns:
+        ----------
+        dat: pandas.DataFrame
+            アメダス地点、変数名に対応するデータ
+        ----------
+        """
         url_top = "http://www.data.jma.go.jp/obd/stats/etrn/view/"
         filename = "monthly_s3.php"
         vno = ""
@@ -210,9 +233,24 @@ class AmedasStation():
                           names=col_names,
                           index_col=[1])
         # 取り出したデータを返却
-        return (dat)
+        return dat
 
     def retrieve_day(self, year, month):
+        """日平均データの取得
+
+        Parameters:
+        ----------
+        year: str or int
+           年
+        month: str or int
+           月
+        ----------
+        Returns:
+        ----------
+        dat: pandas.DataFrame
+            アメダス地点、年月に対応するデータ
+        ----------
+        """
         url_top = "http://www.data.jma.go.jp/obd/stats/etrn/view/"
         filename = "daily_s1.php"
         # daily amedas
@@ -235,17 +273,34 @@ class AmedasStation():
                     .str.replace(")", "", regex=False)
         # csv形式で書き出し再読み込み
         csv = dat.to_csv(index=False)
-        col_names = ('day', 'ps', 'slp', 'prep', 'pmax1h', 'pmax10m', 'tave', 
-                     'tmax', 'tmin', 'RH', 'RHmin', 'wind', 'wmax', 'wd', 
+        col_names = ('day', 'ps', 'slp', 'prep', 'pmax1h', 'pmax10m', 'tave',
+                     'tmax', 'tmin', 'RH', 'RHmin', 'wind', 'wmax', 'wd',
                      'wsmax', 'wsd', 'sun', 'snow', 'snowd', 'wday', 'wnight')
         dat = pd.read_csv(StringIO(csv),
                           skiprows=[0, 1, 2, 3],
                           names=col_names,
                           index_col=[1])
         # 取り出したデータを返却
-        return (dat)
+        return dat
 
     def retrieve_hour(self, year, month, day):
+        """1時間毎のデータの取得
+
+        Parameters:
+        ----------
+        year: str or int
+           年
+        month: str or int
+           月
+        day: str or int
+           日
+        ----------
+        Returns:
+        ----------
+        dat: pandas.DataFrame
+            アメダス地点、年月日に対応するデータ
+        ----------
+        """
         url_top = "https://www.data.jma.go.jp/obd/stats/etrn/view/"
         filename = "hourly_s1.php"
         # hourly amedas
@@ -274,12 +329,12 @@ class AmedasStation():
                                       9].str.replace(list_org[i], list_new[i])
         # csv形式で書き出し再読み込み
         csv = dat.to_csv(index=False)
-        col_names = ('hour', 'ps', 'slp', 'prep', 'temp', 'dewt', 'psw', 'RH', 
+        col_names = ('hour', 'ps', 'slp', 'prep', 'temp', 'dewt', 'psw', 'RH',
                      'ws', 'wd', 'sun', 'sunf', 'snow', 'snowd', 'wday',
                      'ccover', 'vis')
         dat = pd.read_csv(StringIO(csv), skiprows=[0, 1], names=col_names)
         # 取り出したデータを返却
-        return (dat)
+        return dat
 
     def retrieve_stat(self, month=None):
         """統計データの取得（月最大24時間降水量）
