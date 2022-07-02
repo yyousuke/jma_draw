@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-from pandas import Series, DataFrame
 import pandas as pd
 import numpy as np
 import math
-import json
-#import urllib.request
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from mpl_toolkits.basemap import Basemap
 
-#area = "Japan"
+# area = "Japan"
 area = "Tokyo"
 
 
@@ -45,7 +42,7 @@ class temp2col():
         ax.yaxis.set_minor_locator(ticker.NullLocator())
         ax.set_xticks(ticks)
         ax.set_xticklabels(labels)
-        #ax.set_axis_off()
+        # ax.set_axis_off()
 
 
 def str_rep(inp):
@@ -60,7 +57,6 @@ def read_data(input_filename):
     out_v = list()
     # データ取得部分
     df = pd.read_csv(input_filename)
-    #print(df)
     lon_in = df.loc[:, "lon"]
     lat_in = df.loc[:, "lat"]
     temp_in = df.loc[:, "temp"]
@@ -72,7 +68,7 @@ def read_data(input_filename):
         lat = str_rep(lat)
         lon = float(lon[0]) + float(lon[1]) / 60.0
         lat = float(lat[0]) + float(lat[1]) / 60.0
-        #print(lon.strip(), lat.strip(), temp)
+        # print(lon.strip(), lat.strip(), temp)
         try:
             # 気温の計算
             temp.isdecimal()
@@ -81,7 +77,9 @@ def read_data(input_filename):
                 temp = float(new[0])
             else:
                 temp = np.nan
-            #print(temp)
+        except AttributeError:
+            temp = np.nan
+        try:
             # 風向・風速の計算
             wd.isdecimal()
             ws.isdecimal()
@@ -96,18 +94,16 @@ def read_data(input_filename):
             # 東西風、南北風への変換
             u = ws * np.cos((270.0 - wd) / 180.0 * np.pi)
             v = ws * np.sin((270.0 - wd) / 180.0 * np.pi)
-            # データの保存
-            out_lon.append(lon)
-            out_lat.append(lat)
-            out_temp.append(temp)
-            out_u.append(u)
-            out_v.append(v)
-        except:
-            continue
-            #print("Warn: ", temp)
-        #print("len = ", len(out_lon))
-        #if lon > 140.75 and int(lat) == 35:
-        #    print(lon, lat, temp, ws, wd, u, v)
+        except AttributeError:
+            u = np.nan
+            v = np.nan
+
+        # データの保存
+        out_lon.append(lon)
+        out_lat.append(lat)
+        out_temp.append(temp)
+        out_u.append(u)
+        out_v.append(v)
     return np.array(out_lon), np.array(out_lat), np.array(out_temp), np.array(
         out_u), np.array(out_v)
 
@@ -116,7 +112,6 @@ def draw(lons, lats, d, u, v, output_filename="test.png", title=None):
 
     # プロット領域の作成
     fig = plt.figure(figsize=(18, 12))
-    #fig = plt.figure(figsize=(9, 6))
     ax = fig.add_axes((0.1, 0.3, 0.8, 0.6))
 
     # Basemap呼び出し
@@ -176,10 +171,10 @@ def draw(lons, lats, d, u, v, output_filename="test.png", title=None):
     m.drawcoastlines(color='k', linewidth=0.8)
 
     # 背景に色を付ける
-    #m.drawmapboundary(fill_color='aqua')
+    # m.drawmapboundary(fill_color='aqua')
 
     # 大陸に色を付ける
-    #m.fillcontinents(color='w')
+    # m.fillcontinents(color='w')
 
     #
     # 図法の座標へ変換

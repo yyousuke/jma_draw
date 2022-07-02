@@ -4,14 +4,14 @@ import numpy as np
 import math
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import timedelta
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
-from matplotlib.colors import ListedColormap
 from utils import os_mkdir
 from utils import parse_command
 from utils import common
+common
 
 plt.rcParams['xtick.direction'] = 'in'  # x軸目盛線を内側
 plt.rcParams['xtick.major.width'] = 1.2  # x軸主目盛線の長さ
@@ -45,22 +45,21 @@ def read_data(input_filename, sta=None):
     df = pd.read_csv(input_filename)
     # 地点データ選択
     df = df[df.loc[:, 'enName'] == sta]
-    #print(df)
     lon_in = df.loc[:, "lon"]
     lat_in = df.loc[:, "lat"]
     try:
         temp_in = df.loc[:, "temp"]
-    except:
+    except ValueError:
         temp_in = [np.nan]
     try:
         wd_in = df.loc[:, "windDirection"]
         ws_in = df.loc[:, "wind"]
-    except:
+    except ValueError:
         wd_in = [np.nan]
         ws_in = [np.nan]
     try:
         prep_in = df.loc[:, "precipitation1h"]
-    except:
+    except ValueError:
         prep_in = [np.nan]
     for lon, lat, temp, wd, ws, prep in zip(lon_in, lat_in, temp_in, wd_in,
                                             ws_in, prep_in):
@@ -69,7 +68,7 @@ def read_data(input_filename, sta=None):
         lat = str_rep(lat)
         lon = float(lon[0]) + float(lon[1]) / 60.0
         lat = float(lat[0]) + float(lat[1]) / 60.0
-        #print(lon.strip(), lat.strip(), temp)
+        # print(lon.strip(), lat.strip(), temp)
         # データの保存
         out_lon.append(lon)
         out_lat.append(lat)
@@ -81,10 +80,9 @@ def read_data(input_filename, sta=None):
                 temp = float(new[0])
             else:
                 temp = np.nan
-            #print(temp)
             # データの保存
             out_temp.append(temp)
-        except:
+        except AttributeError:
             out_temp.append(np.nan)
         #
         try:
@@ -105,7 +103,7 @@ def read_data(input_filename, sta=None):
             # データの保存
             out_u.append(u)
             out_v.append(v)
-        except:
+        except AttributeError:
             out_u.append(np.nan)
             out_v.append(np.nan)
         #
@@ -118,7 +116,7 @@ def read_data(input_filename, sta=None):
             else:
                 prep = np.nan
             out_prep.append(prep)
-        except:
+        except AttributeError:
             out_prep.append(np.nan)
     return np.array(out_lon), np.array(out_lat), np.array(out_temp), np.array(
         out_u), np.array(out_v), np.array(out_prep)
@@ -174,8 +172,11 @@ def draw(index,
     else:
         step = 10
         offs = 1
-    ax1.set_ylim(
-        [0, math.ceil(prep.max() + math.fmod(prep.max(), step)) + offs])
+    try:
+        ax1.set_ylim([0, math.ceil(prep.max() + math.fmod(prep.max(), step)) + offs])
+    except ValueError as e:
+        print(e)
+        ax1.set_ylim([0, 10])
     ax1.bar(index,
             prep,
             color='b',
@@ -187,11 +188,15 @@ def draw(index,
     # 気温
     if opt_addtemp:
         ax2 = ax1.twinx()  # 2つのプロットを関連付ける
-        ax2.set_ylim([math.floor(temp.min() - 1), math.ceil(temp.max()) + 2])
+        try:
+            ax2.set_ylim([math.floor(temp.min() - 1), math.ceil(temp.max()) + 2])
+        except ValueError as e:
+            print(e)
+            ax2.set_ylim([10, 40])
         ax2.plot(index, temp, color='r', label='Temperature')
         ax2.set_ylabel('Temperature (K)', fontsize=20)
     else:
-        ax1.grid(color='0.7', linestyle=':') # グリッド線を描く
+        ax1.grid(color='0.7', linestyle=':')  # グリッド線を描く
 
     # 矢羽を描く
     if opt_barbs:
@@ -222,7 +227,7 @@ def draw(index,
     # タイトル
     if title is not None:
         plt.title(title, fontsize=24)
-        #fig.suptitle(title, fontsize=24)
+        # fig.suptitle(title, fontsize=24)
 
     # ファイルへの書き出し
     plt.savefig(output_filename, dpi=300, bbox_inches='tight')
@@ -247,7 +252,7 @@ def main(tinfo=None, tinfof=None, sta=None, output_dir='.'):
     ----------
     """
     if sta is None:
-        raise Exception('sta is needed')
+        raise ValueError('sta is needed')
     if tinfof is not None:
         # 入力ファイル名
         input_filename = tinfof + ".csv"
@@ -280,7 +285,7 @@ if __name__ == '__main__':
 
     # データの時間間隔
     time_step = timedelta(hours=1)
-    #time_step = timedelta(minutes=10)
+    # time_step = timedelta(minutes=10)
     index = []
     prep = []
     temp = []

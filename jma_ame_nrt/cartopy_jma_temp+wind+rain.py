@@ -4,18 +4,18 @@ import numpy as np
 import math
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from jmaloc import MapRegion
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import cartopy.io.shapereader as shapereader
-import itertools
 from utils import val2col, collevs
 from utils import os_mkdir
 from utils import parse_command
 from utils import common
+common
 
 # 矢羽を描く値（短矢羽：1m/s、長矢羽：5m/s、旗矢羽：10m/s）
 half = 1.
@@ -46,7 +46,6 @@ def read_data(input_filename):
     out_prep = list()
     # データ取得部分
     df = pd.read_csv(input_filename)
-    #print(df)
     lon_in = df.loc[:, "lon"]
     lat_in = df.loc[:, "lat"]
     temp_in = df.loc[:, "temp"]
@@ -60,7 +59,7 @@ def read_data(input_filename):
         lat = str_rep(lat)
         lon = float(lon[0]) + float(lon[1]) / 60.0
         lat = float(lat[0]) + float(lat[1]) / 60.0
-        #print(lon.strip(), lat.strip(), temp)
+        # print(lon.strip(), lat.strip(), temp)
         # データの保存
         out_lon.append(lon)
         out_lat.append(lat)
@@ -72,10 +71,9 @@ def read_data(input_filename):
                 temp = float(new[0])
             else:
                 temp = np.nan
-            #print(temp)
             # データの保存
             out_temp.append(temp)
-        except:
+        except AttributeError:
             out_temp.append(np.nan)
         #
         try:
@@ -96,7 +94,7 @@ def read_data(input_filename):
             # データの保存
             out_u.append(u)
             out_v.append(v)
-        except:
+        except AttributeError:
             out_u.append(np.nan)
             out_v.append(np.nan)
         #
@@ -109,7 +107,7 @@ def read_data(input_filename):
             else:
                 prep = np.nan
             out_prep.append(prep)
-        except:
+        except AttributeError:
             out_prep.append(np.nan)
     return np.array(out_lon), np.array(out_lat), np.array(out_temp), np.array(
         out_u), np.array(out_v), np.array(out_prep)
@@ -146,7 +144,6 @@ def add_pref(ax,
     #
     # 都道府県境の追加
     for province in provinces_of_japan:
-        #print(province.attributes['name'])
         geometry = province.geometry
         ax.add_geometries([geometry],
                           ccrs.PlateCarree(),
@@ -247,14 +244,13 @@ def draw(lons,
     else:
         ms = 6  # マーカーサイズ
         length = 6  # 矢羽のサイズ
-        #length = 7  # 矢羽のサイズ
+        # length = 7  # 矢羽のサイズ
         lw = 1.5  # 矢羽の幅
         xloc = -0.2  # 矢羽の凡例を表示する位置(x)
         yloc = 0.2  # 矢羽の凡例を表示する位置(x)
     #
     # cartopy呼び出し
     ax = fig.add_axes((0.1, 0.3, 0.8, 0.6), projection=ccrs.PlateCarree())
-    #ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
     ax.set_extent([lon_min, lon_max, lat_min, lat_max])  # 領域の限定
 
     # 経度、緯度線を描く
@@ -275,8 +271,8 @@ def draw(lons,
         # 陸・海・湖を塗り分けて描く
         ax.add_feature(cfeature.LAND, color='darkseagreen')
         ax.add_feature(cfeature.OCEAN, color='lightcyan')
-        #ax.add_feature(cfeature.LAND)
-        #ax.add_feature(cfeature.OCEAN)
+        # ax.add_feature(cfeature.LAND)
+        # ax.add_feature(cfeature.OCEAN)
         ax.add_feature(cfeature.COASTLINE, linewidth=0.8)
         ax.add_feature(cfeature.LAKES)
     else:
@@ -339,7 +335,7 @@ def draw(lons,
     # タイトル
     if title is not None:
         plt.title(title, size=24)
-        #fig.suptitle(title, size=24)
+        # fig.suptitle(title, size=24)
 
     # カラーバーを付ける
     t2c.colorbar(fig)
@@ -452,7 +448,7 @@ if __name__ == '__main__':
             tstep = float(tr[2])
         except IndexError:
             tstep = int((tmax - tmin) / 10.)
-    except:
+    except ValueError:
         raise ValueError("invalid temprange values")
     # 出力ディレクトリ作成
     os_mkdir(output_dir)

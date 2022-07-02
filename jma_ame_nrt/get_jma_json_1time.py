@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from pandas import Series, DataFrame
+from pandas import DataFrame
 import pandas as pd
 import numpy as np
 import os
@@ -8,7 +8,7 @@ import urllib.request
 
 # 取得する時刻（Noneとすれば、最新のものを取得）
 latest = None
-#latest = "2021-05-02T14:30:00+09:00"
+# latest = "2021-05-02T14:30:00+09:00"
 
 
 # データ取得部分
@@ -38,7 +38,6 @@ class AmedasStation():
         df["kjName"] = df_location.loc[:, "kjName"]
         df["knName"] = df_location.loc[:, "knName"]
         df["enName"] = df_location.loc[:, "enName"]
-        #print(df)
         # csvファイルとして保存
         df.to_csv(self.latest_time + ".csv")
         #
@@ -56,7 +55,6 @@ class AmedasStation():
         with open(file_name, 'rt') as fin:
             data = fin.read()
         df = DataFrame(json.loads(data))
-        #print(df)
         # 取り出したデータを返却
         return df.T
 

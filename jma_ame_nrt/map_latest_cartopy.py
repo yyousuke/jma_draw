@@ -7,18 +7,17 @@ import os
 import sys
 import json
 import urllib.request
-from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from jmaloc import MapRegion
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import cartopy.io.shapereader as shapereader
-import itertools
 from utils import val2col
 from utils import os_mkdir
 from utils import parse_command
 from utils import common
+common
 
 # 矢羽を描く値（短矢羽：1m/s、長矢羽：5m/s、旗矢羽：10m/s）
 half = 1.
@@ -29,18 +28,18 @@ barb_increments = dict(half=half, full=full, flag=flag)
 
 # データ取得部分
 class AmedasStation():
-    """AMeDASデータを取得し、ndarrayに変換する
-
-    Parameters:
-    ----------
-    latest: str
-        取得する時刻（形式：20210819120000）
-    output_dir_path: str
-        出力ディレクトリのパス
-    ----------
-    """
+    """AMeDASデータを取得し、ndarrayに変換する"""
 
     def __init__(self, latest=None, outdir_path="."):
+        """
+        Parameters:
+        ----------
+        latest: str
+            取得する時刻（形式：20210819120000）
+        output_dir_path: str
+            出力ディレクトリのパス
+        ----------
+        """
         url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt"
         if latest is None:
             latest = np.loadtxt(urllib.request.urlopen(url), dtype="str")
@@ -65,7 +64,7 @@ class AmedasStation():
                 print(url)
                 urllib.request.urlretrieve(
                     url, os.path.join(outdir_path, file_name))
-            except:
+            except OSError:
                 time.sleep(10.0)  # 10秒間待つ
                 self.retrieve(cnt=cnt - 1)  # cntを減らして再帰
         #
@@ -83,7 +82,6 @@ class AmedasStation():
         df["kjName"] = df_location.loc[:, "kjName"]
         df["knName"] = df_location.loc[:, "knName"]
         df["enName"] = df_location.loc[:, "enName"]
-        #print(df)
         # csvファイルとして保存
         df.to_csv(os.path.join(outdir_path, self.latest_time + ".csv"))
         # DataFrameとして保持
@@ -107,7 +105,6 @@ class AmedasStation():
         except OSError as e:
             raise OSError(e)
         df = DataFrame(json.loads(data))
-        #print(df)
         # 取り出したデータを返却
         return df.T
 
@@ -117,7 +114,7 @@ class AmedasStation():
 
     def read_data(self, input_filename=None, rainstep="1h"):
         """AMeDASデータをndarrayに変換する
-    
+
         Parameters:
         ----------
         input_filename: str
@@ -125,7 +122,7 @@ class AmedasStation():
         rain_step: str
             降水量データの間隔（デフォルトは1時間降水量）
         ----------
-	Returns 
+        Returns
         ----------
         lon, lat, temp, u, v, prep: ndarray
             経度、緯度、気温、東西風、南北風、降水量データ
@@ -143,7 +140,7 @@ class AmedasStation():
         else:
             df = pd.read_csv(
                 os.path.join(self.outdir_path, self.latest_time + ".csv"))
-            #df = self.df
+            # df = self.df
         # 変数に分ける
         lon_in = df.loc[:, "lon"]
         lat_in = df.loc[:, "lat"]
@@ -171,7 +168,7 @@ class AmedasStation():
                     temp = np.nan
                 # データの保存
                 out_temp.append(temp)
-            except:
+            except AttributeError:
                 out_temp.append(np.nan)
             #
             try:
@@ -192,7 +189,7 @@ class AmedasStation():
                 # データの保存
                 out_u.append(u)
                 out_v.append(v)
-            except:
+            except AttributeError:
                 out_u.append(np.nan)
                 out_v.append(np.nan)
             try:
@@ -204,7 +201,7 @@ class AmedasStation():
                 else:
                     prep = np.nan
                 out_prep.append(prep)
-            except:
+            except AttributeError:
                 out_prep.append(np.nan)
         return np.array(out_lon), np.array(out_lat), np.array(
             out_temp), np.array(out_u), np.array(out_v), np.array(out_prep)
@@ -241,7 +238,6 @@ def add_pref(ax,
     #
     # 都道府県境の追加
     for province in provinces_of_japan:
-        #print(province.attributes['name'])
         geometry = province.geometry
         ax.add_geometries([geometry],
                           ccrs.PlateCarree(),
@@ -330,14 +326,13 @@ def draw(lons,
     else:
         ms = 6  # マーカーサイズ
         length = 6  # 矢羽のサイズ
-        #length = 7  # 矢羽のサイズ
+        # length = 7  # 矢羽のサイズ
         lw = 1.5  # 矢羽の幅
         xloc = -0.2  # 矢羽の凡例を表示する位置(x)
         yloc = 0.2  # 矢羽の凡例を表示する位置(x)
     #
     # cartopy呼び出し
     ax = fig.add_axes((0.1, 0.3, 0.8, 0.6), projection=ccrs.PlateCarree())
-    #ax = fig.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
     ax.set_extent([lon_min, lon_max, lat_min, lat_max])  # 領域の限定
 
     # 経度、緯度線を描く
@@ -400,7 +395,7 @@ def draw(lons,
     # タイトル
     if title is not None:
         plt.title(title, size=24)
-        #fig.suptitle(title, size=24)
+        # fig.suptitle(title, size=24)
 
     # カラーバーを付ける
     t2c.colorbar(fig)
@@ -431,7 +426,7 @@ if __name__ == '__main__':
             tstep = float(tr[2])
         except IndexError:
             tstep = int((tmax - tmin) / 10.)
-    except:
+    except ValueError:
         raise ValueError("invalid temprange values")
 
     # AmedasStation Classの初期化

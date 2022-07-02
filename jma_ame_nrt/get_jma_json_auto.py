@@ -18,9 +18,9 @@ import urllib.request
 from datetime import timedelta
 
 # 出力するディレクトリ
-output_dir = "/Users/path_to_output"
+output_dir = "/path_to_output"  # 配置するディレクトリに設定
 
-#output_dir = "."
+# output_dir = "."
 
 
 # dir_name: 作成するディレクトリ名
@@ -34,8 +34,18 @@ def os_mkdir(dir_name):
 
 # データ取得部分
 class AmedasStation():
+    """AMeDASデータを取得し、ndarrayに変換する"""
 
     def __init__(self, latest=None, outdir_path="."):
+        """
+        Parameters:
+        ----------
+        latest: str
+            取得する時刻（形式：20210819120000）
+        output_dir_path: str
+            出力ディレクトリのパス
+        ----------
+        """
         url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt"
         if latest is None:
             latest = np.loadtxt(urllib.request.urlopen(url), dtype="str")
@@ -59,7 +69,7 @@ class AmedasStation():
             print(url)
             urllib.request.urlretrieve(url,
                                        os.path.join(outdir_path, file_name))
-        except:
+        except OSError:
             time.sleep(10.0)  # 10秒間待つ
             self.retrieve(cnt=cnt - 1)  # cntを減らして再帰
         #
@@ -77,7 +87,6 @@ class AmedasStation():
         df["kjName"] = df_location.loc[:, "kjName"]
         df["knName"] = df_location.loc[:, "knName"]
         df["enName"] = df_location.loc[:, "enName"]
-        #print(df)
         # csvファイルとして保存
         df.to_csv(os.path.join(outdir_path, self.latest_time + ".csv"))
         #
@@ -101,7 +110,6 @@ class AmedasStation():
         except OSError as e:
             raise OSError(e)
         df = DataFrame(json.loads(data))
-        #print(df)
         # 取り出したデータを返却
         return df.T
 
@@ -116,7 +124,7 @@ if __name__ == '__main__':
     time_end = pd.to_datetime(amedas.latest_time.split("+")[0])
     # 開始時刻:  1日前までを取得
     time_sta = time_end - timedelta(days=1)
-    #time_sta = time_end - timedelta(hours=1)
+    # time_sta = time_end - timedelta(hours=1)
     print(time_sta)
     print(time_end)
     #

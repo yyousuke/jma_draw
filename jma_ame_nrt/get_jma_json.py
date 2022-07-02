@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from pandas import Series, DataFrame
+from pandas import DataFrame
 import pandas as pd
 import numpy as np
 import os
@@ -9,7 +9,7 @@ import urllib.request
 from datetime import datetime, timedelta
 
 # 取得する時刻（Trueとすれば、最新のものを取得）
-#opt_latest = True
+# opt_latest = True
 opt_latest = False
 
 
@@ -46,7 +46,6 @@ class AmedasStation():
         df["kjName"] = df_location.loc[:, "kjName"]
         df["knName"] = df_location.loc[:, "knName"]
         df["enName"] = df_location.loc[:, "enName"]
-        #print(df)
         # csvファイルとして保存
         df.to_csv(self.latest_time + ".csv")
         #
@@ -67,7 +66,6 @@ class AmedasStation():
         except OSError as e:
             raise OSError(e)
         df = DataFrame(json.loads(data))
-        #print(df)
         # 取り出したデータを返却
         return df.T
 
@@ -89,7 +87,7 @@ if __name__ == '__main__':
         while True:
             if time_now <= time_end:
                 latest = time_now.strftime("%Y-%m-%dT%H:%M:%S+09:00")
-                #latest = "2021-05-02T14:30:00+09:00"
+                # latest = "2021-05-02T14:30:00+09:00"
                 print(latest)
                 # AmedasStation Classの初期化
                 amedas = AmedasStation(latest)
