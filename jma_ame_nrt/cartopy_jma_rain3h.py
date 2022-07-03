@@ -31,6 +31,11 @@ def read_data(input_filename):
     input_filename: str
         入力ファイル名
     ----------
+    Returns:
+    ----------
+    lon, lat, temp, u, v, prep: ndarray
+        経度、緯度、気温、東西風、南北風、降水量データ
+    ----------
     """
     out_lon = list()
     out_lat = list()

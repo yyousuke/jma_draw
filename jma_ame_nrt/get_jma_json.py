@@ -13,10 +13,17 @@ from datetime import datetime, timedelta
 opt_latest = False
 
 
-# データ取得部分
 class AmedasStation():
+    """AMeDASデータを取得し、ndarrayに変換する"""
 
     def __init__(self, latest=None):
+        """
+        Parameters:
+        ----------
+        latest: str
+            取得する時刻（形式：20210819120000）
+        ----------
+        """
         url = "https://www.jma.go.jp/bosai/amedas/data/latest_time.txt"
         if latest is None:
             latest = np.loadtxt(urllib.request.urlopen(url), dtype="str")
@@ -25,6 +32,13 @@ class AmedasStation():
         print(self.latest_time)
 
     def retrieve(self):
+        """アメダスデータ取得
+        Returns:
+        ----------
+        df: ndarray
+            アメダスデータ
+        ----------
+        """
         url_top = "https://www.jma.go.jp/bosai/amedas/data/map/"
         file_name = self.latest_time + ".json"
         if os.path.exists(file_name):  # 既に取得している場合
@@ -53,6 +67,7 @@ class AmedasStation():
         return df
 
     def location(self):
+        """アメダス地点情報の取得"""
         url_top = "https://www.jma.go.jp/bosai/amedas/const/"
         file_name = "amedastable.json"
         # アメダス地点情報の取得

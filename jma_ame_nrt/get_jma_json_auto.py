@@ -54,7 +54,19 @@ class AmedasStation():
         print(self.latest_time)
         self.outdir_path = outdir_path
 
-    def retrieve(self, cnt=2):  # cntは再取得カウント
+    def retrieve(self, cnt=2):
+        """アメダスデータ取得
+        Parameters:
+        ----------
+        cnt: int
+            再取得カウント
+        ----------
+        Returns:
+        ----------
+        df: ndarray
+            アメダスデータ
+        ----------
+        """
         outdir_path = self.outdir_path
         if cnt <= 0:  # 0の場合は終了
             raise RuntimeError('maximum count')
@@ -94,6 +106,7 @@ class AmedasStation():
         return df
 
     def location(self):
+        """アメダス地点情報の取得"""
         outdir_path = self.outdir_path
         url_top = "https://www.jma.go.jp/bosai/amedas/const/"
         file_name = "amedastable.json"
