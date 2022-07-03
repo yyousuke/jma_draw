@@ -223,6 +223,37 @@ cartopy_jma_cumrain.pyでは、1時間積算降水量から積算降水量を算
     time_step = timedelta(hours=1) # 1時間毎
 
 
+##  アメダス地点分布図の作図（cartopy）
+
+cartopy_jma_stations.pyでは、アメダス地点の気温データが存在している地点の分布図を作成する
+
+- 使用方法：
+
+    % python3 cartopy_jma_cumrain.py --time_sta 開始時刻 --time_end 終了時刻 --sta 作図エリア名
+
+    --output_dir 出力ディレクトリ名
+
+- 出力：
+
+    地域_stations_時刻.png
+
+### オプション
+
+- **--time_sta**：作図開始時刻
+
+- **--time_end**：作図終了時刻
+
+- **--sta**：作図エリアを指定
+
+- **--output_dir**：出力ディレクトリを変更できる
+
+### プログラム中の設定で変更可能なもの
+
+- **作図する時間間隔を変更する場合**：プログラム中のtime_stepを変更（デフォルトでは10分毎）
+
+    time_step = timedelta(minutes=10) # 10分毎
+
+
 ## 時系列データの作図
 
 map_tvar_station.pyでは、指定したアメダス地点名（sta）、開始・終了時刻（time_sta、time_end）の範囲で、1時間降水量もしくは積算降水量の時系列図を作成する
