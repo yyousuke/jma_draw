@@ -29,7 +29,7 @@ def os_mkdir(dir_name):
         if os.path.isfile(dir_name):
             os.remove(dir_name)
         print("mkdir " + dir_name)
-        os.mkdir(dir_name)
+        os.makedirs(dir_name)
 
 
 # データ取得部分
