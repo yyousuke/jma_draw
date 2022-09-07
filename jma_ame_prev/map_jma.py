@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from pandas import Series, DataFrame
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta, timezone
@@ -14,25 +13,25 @@ plt.rcParams['ytick.direction'] = 'in'  # y軸目盛線を内側
 plt.rcParams['ytick.major.width'] = 1.2  # y軸主目盛線の長さ
 
 # アメダス地点
-#sta = "Sapporo"
+# sta = "Sapporo"
 sta = "Tokyo"
-#sta = "Yokohama"
-#sta = "Nagoya"
-#sta = "Osaka"
-#sta = "Fukuoka"
+# sta = "Yokohama"
+# sta = "Nagoya"
+# sta = "Osaka"
+# sta = "Fukuoka"
 #
 # 作図する日付
 date = "yesterday"
-#date = "20210123"
+# date = "20210123"
 
 # 矢羽を描くかどうか
 plt_barbs = True  # true: 矢羽を描く
 
-#barbs_kt = False # true: kt, false: m/s
+# barbs_kt = False # true: kt, false: m/s
 barbs_kt = True  # true: kt, false: m/s
 
 # 積雪量データを描くかどうか
-#opt_snow = False
+# opt_snow = False
 opt_snow = True
 
 # 時刻設定
@@ -43,7 +42,7 @@ if date == "yesterday":
 else:
     try:
         tstr = pd.to_datetime(date)
-    except:
+    except Exception:
         raise Exception('Unknown input type')
 
 # ファイル名などに表示する時刻
@@ -73,21 +72,17 @@ def plot(dataset):
         pres = dataset.ps
         ws = dataset.ws
         wd = dataset.wd
-    except:
+    except Exception:
         raise Exception('Unknown index')
-    #print(ws)
-    #print(wd)
     u = ws * np.cos((270.0 - wd) / 180.0 * np.pi)
     v = ws * np.sin((270.0 - wd) / 180.0 * np.pi)
 
     # 作図
     # (0) プロットエリアの定義
-    #fig, ax1 = plt.subplots()
     fig = plt.figure(figsize=(6, 6))
     ax1 = fig.add_subplot(3, 1, 1)
     # タイトルを付ける
     ax1.set_title(dstr + ' ' + sta)
-    #plt.title(loc2, fontdict = {"fontproperties": fontprop})
     #
     # (1) 降水量と気温
     # (1-1) 降水量(mm)
@@ -117,7 +112,6 @@ def plot(dataset):
     ax2.set_ylabel('Temperature ($\mathrm{^{\circ}C}$)')
     # 凡例
     ax2.legend(loc='upper right')
-    #plt.legend(loc='lower center')
     #
     #
     # (2) 日照時間（h）, 相対湿度(%)、風向・風速(矢羽)
@@ -200,7 +194,6 @@ def plot(dataset):
         math.floor(pres.min() - math.fmod(pres.min(), 5) - 5),
         math.ceil(pres.max() - math.fmod(pres.min(), 5)) + 5
     ])
-    #ax6.set_ylim([math.floor(pres.min()-math.fmod(pres.min(),2)), math.ceil(pres.max())+1])
     ax6.plot(index, pres, color='k', label='Pressure')
     ax6.set_ylabel('pressure (hPa)')
     # 凡例
