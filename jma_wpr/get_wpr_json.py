@@ -63,11 +63,10 @@ class WprStation():
             try:
                 df = DataFrame(d[tinfo])
                 u_i, v_i, w_i, z_i = self._divide(df)
-                #df = DataFrame(d['20210321064000'])
                 u_o[0:u_i.shape[0]] = u_i
                 v_o[0:v_i.shape[0]] = v_i
                 w_o[0:w_i.shape[0]] = w_i
-            except:
+            except Exception:
                 z_i = []
             print(tinfo, "zlevs =", len(z_i))
             if len(z_i) > zmax:
@@ -116,7 +115,7 @@ def wpr_time(opt_retrive=True):
 
 def wpr_location():
     """WPR地点情報を取得しデータを返却する
-    
+
     Returns:
     ----------
     df: pandas.DataFrame
@@ -141,24 +140,23 @@ if __name__ == '__main__':
 
     # データを取得するかどうか
     opt_retrieve = True
-    #opt_retrieve = False
+    # opt_retrieve = False
     # WPRデータの時刻を取得
     t = wpr_time(opt_retrive=True)
-    time_list = [l[0] for l in np.array(t).tolist()]
+    time_list = [tl[0] for tl in np.array(t).tolist()]
     print(time_list, len(time_list))
     # WPRの位置を取得
-    l = wpr_location()
-    station_list = np.array(l.index).tolist()
+    sl = wpr_location()
+    station_list = np.array(sl.index).tolist()
     print(station_list, len(station_list))
-    #station_no = 47626 # 熊谷
-    #station_no = 47656 # 静岡
+    # station_no = 47626 # 熊谷
+    # station_no = 47656 # 静岡
     station_no = 47636  # 名古屋
 
     # WprStation Classの初期化
     wpr = WprStation(station_no=station_no)
     # AmedasStation.retrieveメソッドを使い、WPRデータを取得
     u, v, w, z, zmax = wpr.retrieve(time_list, opt_retrieve=opt_retrieve)
-    #print(z)
     # csvファイルとして保存
 
     # 高度・時刻データ書き出し

@@ -9,7 +9,6 @@
 # https://colab.research.google.com/drive/1NtZSQR-JREDH1PnL7T-eInR-CW046iKK
 #
 import os
-import sys
 import time
 import cv2
 import json
@@ -22,7 +21,7 @@ import matplotlib.ticker as ticker
 
 # 最新の画像だけを取得するかどうか
 opt_latest = False  # 取得開始する時刻以降の全時刻の画像を使用する場合（注意）
-#opt_latest = True  # 最新の画像だけを取得する場合
+# opt_latest = True  # 最新の画像だけを取得する場合
 # 取得開始する時刻（UTC）
 start_time_UTC = "20220525 15:00:00"
 
@@ -56,7 +55,7 @@ nmax = 4  # タイルの数
 # 画像ファイルを保存するかどうか
 opt_filesave = True  # ファイルに保存（opt_latest = Falseの場合はデータサイズに注意）
 
-#opt_filesave = False # 画面に表示（opt_latest = Falseの場合は全部表示されるので注意）
+# opt_filesave = False # 画面に表示（opt_latest = Falseの場合は全部表示されるので注意）
 
 
 def os_mkdir(path_to_dir):
@@ -162,7 +161,7 @@ def get_jpg(basetime=None,
     print(url)
     try:
         im = Image.open(urllib.request.urlopen(url))
-    except:
+    except Exception:
         time.sleep(10.0)  # 10秒間待つ
         get_jpg(basetime=None,
                 validtime=None,
@@ -196,7 +195,6 @@ def get_tile(tile="3/7/3", mtype="std"):
     # ex. "https://cyberjapandata.gsi.go.jp/xyz/std/6/57/23.png"
     if tile is None or mtype is None:
         raise ValueError("Invalid tile/mtype")
-        #return None
     # URL
     url = urlbase + mtype + "/" + tile + ".png"
     print(url)
@@ -330,7 +328,7 @@ def draw_tile(z=5, y=12, x=27, nmax=4, file_path=None, mtype="blank"):
                 im = get_tile(tile, mtype=mtype)
                 time.sleep(1.0)  # 1秒間待つ
                 opt_draw = True
-            except:
+            except Exception:
                 raise Exception("not found")
         else:
             raise ValueError("invalid tile")
@@ -429,7 +427,7 @@ def draw_sat(z=5,
                              opt_jp=opt_jp)
                 time.sleep(1.0)  # 1秒間待つ
                 opt_draw = True
-            except:
+            except Exception:
                 raise Exception("not found")
         else:
             raise ValueError("invalid tile")
