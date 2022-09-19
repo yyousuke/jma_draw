@@ -17,6 +17,7 @@ class WprStation():
         ５桁の地点番号
     ----------
     """
+
     def __init__(self, station_no=None):
         self.station_no = str(station_no)
 
@@ -151,14 +152,15 @@ if __name__ == '__main__':
     print(station_list, len(station_list))
     # station_no = 47626 # 熊谷
     # station_no = 47656 # 静岡
-    station_no = 47636  # 名古屋
+    # station_no = 47636  # 名古屋
+    station_no = 47836  # 屋久島
 
     # WprStation Classの初期化
     wpr = WprStation(station_no=station_no)
     # AmedasStation.retrieveメソッドを使い、WPRデータを取得
     u, v, w, z, zmax = wpr.retrieve(time_list, opt_retrieve=opt_retrieve)
-    # csvファイルとして保存
 
+    # csvファイルとして保存
     # 高度・時刻データ書き出し
     Series(z).to_csv('height.csv', header=None)
     Series(np.array(time_list)).to_csv('time.csv', header=None)
