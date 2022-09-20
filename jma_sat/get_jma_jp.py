@@ -163,11 +163,11 @@ def get_jpg(basetime=None,
         im = Image.open(urllib.request.urlopen(url))
     except Exception:
         time.sleep(10.0)  # 10秒間待つ
-        get_jpg(basetime=None,
-                validtime=None,
-                mtype="l",
-                tile="3/7/3",
-                opt_jp=False,
+        get_jpg(basetime=basetime,
+                validtime=validtime,
+                mtype=mtype,
+                tile=tile,
+                opt_jp=opt_jp,
                 cnt=cnt - 1)  # cntを減らして再帰
     return im
 
