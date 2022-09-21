@@ -58,10 +58,16 @@ day = tstr.day
 
 
 def plot(dataset):
-    """地点データの作図を行う"""
+    """地点データの作図を行う
+
+    Parameters:
+    ----------
+    dataset: pandas DataFrame
+        入力データ
+    ----------
+    """
     # データの取り出し
     try:
-        #index = dataset.hour
         index = np.arange(len(dataset.hour)) + 1
         temp = dataset.temp
         prep = dataset.prep
