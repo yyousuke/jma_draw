@@ -53,7 +53,7 @@ class AmedasStation():
         """AMeDASデータをダウンロードする"""
         outdir_path = self.outdir_path
         if cnt <= 0:  # 0の場合は終了
-            raise RuntimeError('maximum count')
+            raise RecursionError('maximum count reached')
         url_top = "https://www.jma.go.jp/bosai/amedas/data/map/"
         file_name = self.latest_time + ".json"
         # 既に取得している場合は取得しない
