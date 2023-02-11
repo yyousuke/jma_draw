@@ -1,6 +1,24 @@
 # jma_sat
 
-## 準備
+## 実行環境の準備
+
+下記のパッケージを導入する
+
+- opencv
+
+- Pillow
+
+- json
+
+- urllib
+
+- Numpy
+
+- Pandas
+
+- matplotlib
+
+## 作図の準備
 
 get_jma_jp.pyを編集
 
