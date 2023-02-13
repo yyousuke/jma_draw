@@ -1,5 +1,15 @@
 # jma_ame_prev
 
+## 実行環境の準備
+
+下記のパッケージを導入する
+
+- Numpy
+
+- Pandas
+
+- matplotlib
+
 ## map_jma.py
 
 指定したアメダス地点で時系列図を作成する
