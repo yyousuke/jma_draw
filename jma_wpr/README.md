@@ -1,5 +1,19 @@
 # jma_wpr
 
+## 実行環境の準備
+
+下記のパッケージを導入する
+
+- Numpy
+
+- Pandas
+
+- json
+
+- urllib
+
+- matplotlib
+
 ## データの取得
 
 get_wpr_json.pyを編集し、地点番号（station_no）を設定する
