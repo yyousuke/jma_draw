@@ -173,7 +173,7 @@ def get_jpg(basetime=None,
 
 
 def get_tile(tile="3/7/3", mtype="std"):
-    """地理院タイル画像の取
+    """地理院タイル画像の取得
 
     Parameters:
     ----------
