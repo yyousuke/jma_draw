@@ -182,7 +182,7 @@ def get_tile(tile="3/7/3", mtype="std"):
        （確認ページ、https://maps.gsi.go.jp/development/tileCoordCheck.html）
     mtype: str
         地図のタイプ
-       （std：標準地図、pale：淡色地図、blank：白地図(5-)、seamlessphoto：写真）
+       （std：標準地図、pale：淡色地図、blank：白地図(5-)、relief:色別標高図）
     ----------
     Returns:
     ----------
