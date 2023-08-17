@@ -279,7 +279,7 @@ def draw(lons,
         # ax.add_feature(cfeature.LAND)
         # ax.add_feature(cfeature.OCEAN)
         ax.add_feature(cfeature.COASTLINE, linewidth=0.8)
-        ax.add_feature(cfeature.LAKES)
+        ax.add_feature(cfeature.LAKES, color='lightcyan')
     else:
         # 海岸線を描く
         ax.coastlines(color='k', linewidth=0.8)
